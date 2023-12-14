@@ -46,11 +46,11 @@ func (c *Client) Authenticate(ctx context.Context, req AuthenticateRequest) (Aut
 }
 
 type AuthenticateRequest struct {
-	Email    string
-	Password string
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type AuthenticateResponse struct {
-	AccessToken  string
-	RefreshToken string
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
