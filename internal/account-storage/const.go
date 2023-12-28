@@ -1,4 +1,4 @@
-package dbaccountstorage
+package accountstorage
 
 const (
 	TABLE_NAME           = "account"

@@ -1,4 +1,4 @@
-package dbaccountstorage
+package accountstorage
 
 import (
 	"github.com/Masterminds/squirrel"

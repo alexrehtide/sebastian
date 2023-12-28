@@ -1,4 +1,4 @@
-package dbaccountrolestorage
+package accountrolestorage
 
 const (
 	TABLE_NAME        = "account_role"

@@ -1,4 +1,4 @@
-package dbsessionstorage
+package sessionstorage
 
 const (
 	TABLE_NAME           = "session"

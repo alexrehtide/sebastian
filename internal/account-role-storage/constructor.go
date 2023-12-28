@@ -1,4 +1,4 @@
-package dbaccountrolestorage
+package accountrolestorage
 
 import (
 	"github.com/Masterminds/squirrel"
