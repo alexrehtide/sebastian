@@ -46,22 +46,22 @@ func New(db *sqlx.DB) *Server {
 	app.Use(authMiddleware.Authorize)
 
 	accountRoute := app.Group("/account")
-	accountRoute.Post("/", rbacMiddleware.WithPermission(model.AccountCreate), accountController.Create)
-	accountRoute.Delete("/:id", rbacMiddleware.WithPermission(model.AccountDelete), accountController.Delete)
-	accountRoute.Get("/", rbacMiddleware.WithPermission(model.AccountRead), accountController.Read)
-	accountRoute.Get("/:id", rbacMiddleware.WithPermission(model.AccountRead), accountController.ReadByID)
-	accountRoute.Put("/:id", rbacMiddleware.WithPermission(model.AccountUpdate), accountController.Update)
+	accountRoute.Post("/create", rbacMiddleware.WithPermission(model.AccountCreate), accountController.Create)
+	accountRoute.Post("/delete", rbacMiddleware.WithPermission(model.AccountDelete), accountController.Delete)
+	accountRoute.Post("/read", rbacMiddleware.WithPermission(model.AccountRead), accountController.Read)
+	accountRoute.Post("/read_by_id", rbacMiddleware.WithPermission(model.AccountRead), accountController.ReadByID)
+	accountRoute.Post("/update", rbacMiddleware.WithPermission(model.AccountUpdate), accountController.Update)
 
 	authRoute := app.Group("/auth")
 	authRoute.Post("/authenticate", authController.Authenticate)
-	authRoute.Get("/authorize", rbacMiddleware.WithPermission(model.AuthAuthorize), authController.Authorize)
-	authRoute.Get("/logout", rbacMiddleware.WithPermission(model.AuthLogout), authController.Logout)
+	authRoute.Post("/authorize", rbacMiddleware.WithPermission(model.AuthAuthorize), authController.Authorize)
+	authRoute.Post("/logout", rbacMiddleware.WithPermission(model.AuthLogout), authController.Logout)
 	authRoute.Post("/refresh", rbacMiddleware.WithPermission(model.AuthRefresh), authController.Refresh)
 
 	rbacRoute := app.Group("/rbac")
-	rbacRoute.Post("/:account_id/add_role", rbacMiddleware.WithPermission(model.RBACAddAccountRole), rbacController.AddAccountRole)
-	rbacRoute.Get("/:account_id/roles", rbacMiddleware.WithPermission(model.RBACReadAccountRoles), rbacController.ReadAccountRoles)
-	rbacRoute.Post("/:account_id/remove_role", rbacMiddleware.WithPermission(model.RBACRemoveAccountRole), rbacController.RemoveAccountRole)
+	rbacRoute.Post("/add_account_role", rbacMiddleware.WithPermission(model.RBACAddAccountRole), rbacController.AddAccountRole)
+	rbacRoute.Post("/read_account_roles", rbacMiddleware.WithPermission(model.RBACReadAccountRoles), rbacController.ReadAccountRoles)
+	rbacRoute.Post("/remove_account_role", rbacMiddleware.WithPermission(model.RBACRemoveAccountRole), rbacController.RemoveAccountRole)
 
 	return &Server{
 		app: app,

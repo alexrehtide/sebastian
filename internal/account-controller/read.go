@@ -6,14 +6,14 @@ import (
 )
 
 type ReadInput struct {
-	Email  string `query:"email"`
-	Limit  int    `query:"limit"`
-	Offset int    `query:"offset"`
+	Email  string `json:"email"`
+	Limit  int    `json:"limit"`
+	Offset int    `json:"offset"`
 }
 
 func (ctrl *Controller) Read(c *fiber.Ctx) error {
 	var input ReadInput
-	if err := c.QueryParser(&input); err != nil {
+	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 	ops := model.ReadAccountOptions{

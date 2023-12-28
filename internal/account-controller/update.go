@@ -6,15 +6,12 @@ import (
 )
 
 type UpdateInput struct {
-	ID    uint   `params:"id"`
+	ID    uint   `json:"id"`
 	Email string `json:"email"`
 }
 
 func (ctrl *Controller) Update(c *fiber.Ctx) error {
 	var input UpdateInput
-	if err := c.ParamsParser(&input); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
