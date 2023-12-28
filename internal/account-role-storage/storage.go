@@ -67,10 +67,10 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadAccountRoleOptions, pg
 		Offset(uint64(pgOps.Offset)).
 		ToSql()
 	if err != nil {
-		return []model.AccountRole{}, fmt.Errorf("dbaccountrolestorage.Storage.scanRows: %w", err)
+		return []model.AccountRole{}, fmt.Errorf("dbaccountrolestorage.Storage.Read: %w", err)
 	}
 	if err := s.db.SelectContext(ctx, rows, sql, args...); err != nil {
-		return []model.AccountRole{}, fmt.Errorf("dbaccountrolestorage.Storage.scanRows: %w", err)
+		return []model.AccountRole{}, fmt.Errorf("dbaccountrolestorage.Storage.Read: %w", err)
 	}
 	return
 }
