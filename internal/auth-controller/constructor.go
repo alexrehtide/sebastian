@@ -4,11 +4,10 @@ import (
 	"context"
 
 	"github.com/alexrehtide/sebastian/model"
-	"github.com/gofiber/fiber/v2"
 )
 
 type AccountProvider interface {
-	Inject(c *fiber.Ctx) *model.Account
+	Inject(ctx context.Context) *model.Account
 }
 
 type AuthService interface {

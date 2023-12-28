@@ -11,7 +11,7 @@ func (ctrl *Controller) Delete(c *fiber.Ctx) error {
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
-	if err := ctrl.AccountService.Delete(c.Context(), input.ID); err != nil {
+	if err := ctrl.AccountService.Delete(c.UserContext(), input.ID); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.SendStatus(fiber.StatusOK)

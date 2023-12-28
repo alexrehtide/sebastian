@@ -20,7 +20,7 @@ func (ctrl *Controller) Create(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 	output, err := ctrl.AccountService.Create(
-		c.Context(),
+		c.UserContext(),
 		model.CreateAccountOptions{
 			Email:    input.Email,
 			Password: input.Password,

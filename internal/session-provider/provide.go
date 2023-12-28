@@ -1,10 +1,11 @@
 package sessionprovider
 
 import (
+	"context"
+
 	"github.com/alexrehtide/sebastian/model"
-	"github.com/gofiber/fiber/v2"
 )
 
-func (p *Provider) Provide(c *fiber.Ctx, acc model.Session) {
-	c.Locals(SESSION_INJECT_KEY, acc)
+func (p *Provider) Provide(ctx context.Context, s model.Session) context.Context {
+	return context.WithValue(ctx, SESSION_INJECT_KEY, s)
 }

@@ -1,12 +1,13 @@
 package accountprovider
 
 import (
+	"context"
+
 	"github.com/alexrehtide/sebastian/model"
-	"github.com/gofiber/fiber/v2"
 )
 
-func (p *Provider) Inject(c *fiber.Ctx) *model.Account {
-	acc, ok := c.Locals(ACCOUNT_INJECT_KEY).(model.Account)
+func (p *Provider) Inject(ctx context.Context) *model.Account {
+	acc, ok := ctx.Value(ACCOUNT_INJECT_KEY).(model.Account)
 	if !ok {
 		return nil
 	}

@@ -1,10 +1,11 @@
 package accountprovider
 
 import (
+	"context"
+
 	"github.com/alexrehtide/sebastian/model"
-	"github.com/gofiber/fiber/v2"
 )
 
-func (p *Provider) Provide(c *fiber.Ctx, acc model.Account) {
-	c.Locals(ACCOUNT_INJECT_KEY, acc)
+func (p *Provider) Provide(ctx context.Context, acc model.Account) context.Context {
+	return context.WithValue(ctx, ACCOUNT_INJECT_KEY, acc)
 }

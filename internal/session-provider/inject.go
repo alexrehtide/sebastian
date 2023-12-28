@@ -1,12 +1,13 @@
 package sessionprovider
 
 import (
+	"context"
+
 	"github.com/alexrehtide/sebastian/model"
-	"github.com/gofiber/fiber/v2"
 )
 
-func (p *Provider) Inject(c *fiber.Ctx) *model.Session {
-	acc, ok := c.Locals(SESSION_INJECT_KEY).(model.Session)
+func (p *Provider) Inject(ctx context.Context) *model.Session {
+	acc, ok := ctx.Value(SESSION_INJECT_KEY).(model.Session)
 	if !ok {
 		return nil
 	}

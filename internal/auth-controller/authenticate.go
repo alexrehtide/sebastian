@@ -21,7 +21,7 @@ func (ctrl *Controller) Authenticate(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 	tokens, err := ctrl.AuthService.Authenticate(
-		c.Context(),
+		c.UserContext(),
 		model.AuthenticateOptions{
 			Email:    input.Email,
 			Password: input.Password,

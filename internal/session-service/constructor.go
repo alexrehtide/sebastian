@@ -5,6 +5,7 @@ import (
 
 	"github.com/alexrehtide/sebastian/model"
 	"github.com/alexrehtide/sebastian/pkg/validator"
+	"github.com/sirupsen/logrus"
 )
 
 type SessionStorage interface {
@@ -15,14 +16,16 @@ type SessionStorage interface {
 	Update(ctx context.Context, id uint, ops model.UpdateSessionOptions) error
 }
 
-func New(sessionStorage SessionStorage, validate validator.Validate) *Service {
+func New(log *logrus.Logger, sessionStorage SessionStorage, validate validator.Validate) *Service {
 	return &Service{
 		SessionStorage: sessionStorage,
+		log:            log,
 		v:              validate,
 	}
 }
 
 type Service struct {
 	SessionStorage
-	v validator.Validate
+	log *logrus.Logger
+	v   validator.Validate
 }

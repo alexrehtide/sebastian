@@ -16,7 +16,7 @@ func (ctrl *Controller) Update(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 	err := ctrl.AccountService.Update(
-		c.Context(),
+		c.UserContext(),
 		input.ID,
 		model.UpdateAccountOptions{
 			Email: input.Email,

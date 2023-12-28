@@ -22,14 +22,14 @@ func (ctrl *Controller) Read(c *fiber.Ctx) error {
 		Email: input.Email,
 	}
 	count, err := ctrl.AccountService.Count(
-		c.Context(),
+		c.UserContext(),
 		ops,
 	)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	rows, err := ctrl.AccountService.Read(
-		c.Context(),
+		c.UserContext(),
 		ops,
 		model.PaginationOptions{
 			Limit:  input.Limit,

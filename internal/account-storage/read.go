@@ -9,7 +9,7 @@ import (
 
 func (s *Storage) Read(ctx context.Context, ops model.ReadAccountOptions, pgOps model.PaginationOptions) (rows []model.Account, err error) {
 	sql, args, err := s.sq.
-		Select(COLUMN_ID, COLUMN_EMAIL, COLUMN_PASSWORD_HASH).
+		Select(COLUMN_ID, COLUMN_EMAIL, COLUMN_PASSWORD).
 		From(TABLE_NAME).
 		Where(s.buildWhere(ops)).
 		Limit(uint64(pgOps.Limit)).

@@ -4,11 +4,10 @@ import (
 	"context"
 
 	"github.com/alexrehtide/sebastian/model"
-	"github.com/gofiber/fiber/v2"
 )
 
 type AccountProvider interface {
-	Provide(c *fiber.Ctx, acc model.Account)
+	Provide(ctx context.Context, acc model.Account) context.Context
 }
 
 type AccountService interface {
@@ -16,7 +15,7 @@ type AccountService interface {
 }
 
 type SessionProvider interface {
-	Provide(c *fiber.Ctx, s model.Session)
+	Provide(ctx context.Context, s model.Session) context.Context
 }
 
 type SessionService interface {

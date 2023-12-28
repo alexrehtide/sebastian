@@ -3,7 +3,7 @@ package model
 type Account struct {
 	ID       uint   `json:"id" db:"id"`
 	Email    string `json:"email" db:"email"`
-	Password string `json:"-" db:"password_hash"`
+	Password string `json:"-" db:"password"`
 }
 
 type ReadAccountOptions struct {

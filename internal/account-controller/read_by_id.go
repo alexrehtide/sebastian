@@ -18,7 +18,7 @@ func (ctrl *Controller) ReadByID(c *fiber.Ctx) error {
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
-	output, err := ctrl.AccountService.ReadByID(c.Context(), input.ID)
+	output, err := ctrl.AccountService.ReadByID(c.UserContext(), input.ID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

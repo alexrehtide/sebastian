@@ -10,18 +10,18 @@ func (m *Middleware) Authorize(c *fiber.Ctx) error {
 	if token == "" {
 		return c.Next()
 	}
-	session, err := m.SessionService.ReadByAccessToken(c.Context(), token)
+	session, err := m.SessionService.ReadByAccessToken(c.UserContext(), token)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(middlewareerror.ErrSessionNotFound.Error())
 	}
 	if err := m.SessionService.Verify(session); err != nil {
 		return c.Next()
 	}
-	m.SessionProvider.Provide(c, session)
-	account, err := m.AccountService.ReadByID(c.Context(), session.AccountID)
+	c.SetUserContext(m.SessionProvider.Provide(c.UserContext(), session))
+	account, err := m.AccountService.ReadByID(c.UserContext(), session.AccountID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(middlewareerror.ErrAccountNotFound.Error())
 	}
-	m.AccountProvider.Provide(c, account)
+	c.SetUserContext(m.AccountProvider.Provide(c.UserContext(), account))
 	return c.Next()
 }

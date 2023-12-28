@@ -5,6 +5,7 @@ import (
 
 	"github.com/alexrehtide/sebastian/model"
 	"github.com/alexrehtide/sebastian/pkg/validator"
+	"github.com/sirupsen/logrus"
 )
 
 type AccountStorage interface {
@@ -15,14 +16,16 @@ type AccountStorage interface {
 	Delete(ctx context.Context, id uint) error
 }
 
-func New(accountStorage AccountStorage, validate validator.Validate) *Service {
+func New(accountStorage AccountStorage, log *logrus.Logger, validate validator.Validate) *Service {
 	return &Service{
 		AccountStorage: accountStorage,
+		log:            log,
 		v:              validate,
 	}
 }
 
 type Service struct {
 	AccountStorage
-	v validator.Validate
+	log *logrus.Logger
+	v   validator.Validate
 }

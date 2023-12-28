@@ -12,8 +12,8 @@ type AuthorizeOutput struct {
 }
 
 func (ctrl *Controller) Authorize(c *fiber.Ctx) error {
-	account := ctrl.AccountProvider.Inject(c)
-	roles, err := ctrl.RBACService.ReadAccountRoles(c.Context(), account.ID)
+	account := ctrl.AccountProvider.Inject(c.UserContext())
+	roles, err := ctrl.RBACService.ReadAccountRoles(c.UserContext(), account.ID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
