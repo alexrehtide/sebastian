@@ -1,4 +1,4 @@
-package controllertestutils
+package testutils
 
 import (
 	"bytes"

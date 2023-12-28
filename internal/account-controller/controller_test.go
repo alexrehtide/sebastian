@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	accountcontroller "github.com/alexrehtide/sebastian/internal/account-controller"
-	testutils "github.com/alexrehtide/sebastian/internal/controller-testutils"
 	"github.com/alexrehtide/sebastian/model"
+	"github.com/alexrehtide/sebastian/pkg/testutils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/mock"
 )
