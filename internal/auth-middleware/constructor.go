@@ -16,7 +16,3 @@ func New(accountProvider AccountProvider) *Middleware {
 type Middleware struct {
 	AccountProvider AccountProvider
 }
-
-func (m *Middleware) Authorize(c *fiber.Ctx) error {
-	return c.Next()
-}
