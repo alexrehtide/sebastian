@@ -1,10 +1,14 @@
 package authservice
 
-import customerror "github.com/alexrehtide/sebastian/internal/custom-error"
+import (
+	"fmt"
+
+	serviceerror "github.com/alexrehtide/sebastian/internal/service-error"
+)
 
 func (s *AuthService) verifyPassword(passwordHash, password string) error {
 	if passwordHash != password {
-		return customerror.ErrInvalidPassword
+		return fmt.Errorf("authservice.AuthService.verifyPassword: %w", serviceerror.ErrInvalidPassword)
 	}
 	return nil
 }

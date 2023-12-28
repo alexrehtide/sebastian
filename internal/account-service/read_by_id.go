@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	customerror "github.com/alexrehtide/sebastian/internal/custom-error"
+	serviceerror "github.com/alexrehtide/sebastian/internal/service-error"
 	"github.com/alexrehtide/sebastian/model"
 )
 
@@ -14,7 +14,7 @@ func (s *Service) ReadByID(ctx context.Context, id uint) (model.Account, error) 
 		return model.Account{}, err
 	}
 	if len(accs) == 0 {
-		return model.Account{}, fmt.Errorf("accountservice.Service.ReadByID: %w", customerror.ErrRecordNotFound)
+		return model.Account{}, fmt.Errorf("accountservice.Service.ReadByID: %w", serviceerror.ErrRecordNotFound)
 	}
 	return accs[0], nil
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	customerror "github.com/alexrehtide/sebastian/internal/custom-error"
+	serviceerror "github.com/alexrehtide/sebastian/internal/service-error"
 	"github.com/alexrehtide/sebastian/model"
 )
 
@@ -14,7 +14,7 @@ func (s *Service) ReadByEmail(ctx context.Context, email string) (model.Account,
 		return model.Account{}, err
 	}
 	if len(accs) == 0 {
-		return model.Account{}, fmt.Errorf("accountservice.Service.ReadByEmail: %w", customerror.ErrRecordNotFound)
+		return model.Account{}, fmt.Errorf("accountservice.Service.ReadByEmail: %w", serviceerror.ErrRecordNotFound)
 	}
 	return accs[0], nil
 }
