@@ -12,6 +12,7 @@ import (
 	rbaccontroller "github.com/alexrehtide/sebastian/internal/rbac-controller"
 	rbacmiddleware "github.com/alexrehtide/sebastian/internal/rbac-middleware"
 	rbacservice "github.com/alexrehtide/sebastian/internal/rbac-service"
+	sessionprovider "github.com/alexrehtide/sebastian/internal/session-provider"
 	sessionservice "github.com/alexrehtide/sebastian/internal/session-service"
 	sessionstorage "github.com/alexrehtide/sebastian/internal/session-storage"
 	"github.com/alexrehtide/sebastian/model"
@@ -33,8 +34,9 @@ func New(db *sqlx.DB) *Server {
 	rbacService := rbacservice.New(accountRoleStorage, validate)
 
 	accountProvider := accountprovider.New()
+	sessionProvider := sessionprovider.New()
 
-	authMiddleware := authmiddleware.New(accountProvider)
+	authMiddleware := authmiddleware.New(accountProvider, accountService, sessionProvider, sessionService)
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
 	accountController := accountcontroller.New(accountService)
 	authController := authcontroller.New(accountProvider, authService)

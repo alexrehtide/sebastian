@@ -3,12 +3,12 @@ package model
 import "time"
 
 type Session struct {
-	ID           uint
-	AccountID    uint
-	AccessToken  string
-	RefreshToken string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID           uint      `db:"id"`
+	AccountID    uint      `db:"account_id"`
+	AccessToken  string    `db:"access_token"`
+	RefreshToken string    `db:"refresh_token"`
+	CreatedAt    time.Time `db:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at"`
 }
 
 type ReadSessionOptions struct {

@@ -1,9 +1,9 @@
 package model
 
 type AccountRole struct {
-	ID        uint
-	AccountID uint
-	Role      Role
+	ID        uint `db:"id"`
+	AccountID uint `db:"account_id"`
+	Role      Role `db:"role"`
 }
 
 type ReadAccountRoleOptions struct {

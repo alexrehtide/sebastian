@@ -14,7 +14,7 @@ type AccountService interface {
 
 type SessionService interface {
 	CreateWithAccountID(ctx context.Context, accountID uint) (uint, error)
-	Verify(ctx context.Context, accessToken string) (model.Session, error)
+	Verify(session model.Session) error
 	ReadByID(ctx context.Context, id uint) (model.Session, error)
 	RefreshSession(ctx context.Context, refreshToken string) (model.Session, error)
 }

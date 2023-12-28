@@ -3,32 +3,20 @@ package sessionservice
 import (
 	"context"
 	"fmt"
+	"math/rand"
 
 	customerror "github.com/alexrehtide/sebastian/internal/custom-error"
 	"github.com/alexrehtide/sebastian/model"
 )
 
-func (s *Service) generateToken() string {
-	panic("TODO: Implement")
-}
+var charset = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func (s *Service) readByAccessToken(ctx context.Context, accessToken string) (model.Session, error) {
-	sessions, err := s.Read(
-		ctx,
-		model.ReadSessionOptions{
-			AccessToken: accessToken,
-		},
-		model.PaginationOptions{
-			Limit: 1,
-		},
-	)
-	if err != nil {
-		return model.Session{}, err
+func (s *Service) generateToken() string {
+	b := make([]byte, 64)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
 	}
-	if len(sessions) == 0 {
-		return model.Session{}, fmt.Errorf("sessionservice.Service.ReadByAccessToken: %w", customerror.ErrRecordNotFound)
-	}
-	return sessions[0], nil
+	return string(b)
 }
 
 func (s *Service) readByRefreshToken(ctx context.Context, refreshToken string) (model.Session, error) {

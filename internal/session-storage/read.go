@@ -7,7 +7,7 @@ import (
 	"github.com/alexrehtide/sebastian/model"
 )
 
-func (s *Storage) Read(ctx context.Context, ops model.ReadSessionOptions, pgOps model.PaginationOptions) (rows []model.Session, err error) {
+func (s *Storage) Read(ctx context.Context, ops model.ReadSessionOptions, pgOps model.PaginationOptions) ([]model.Session, error) {
 	sql, args, err := s.sq.
 		Select(COLUMN_ID, COLUMN_ACCOUNT_ID, COLUMN_ACCESS_TOKEN, COLUMN_REFRESH_TOKEN, COLUMN_CREATED_AT, COLUMN_UPDATED_AT).
 		From(TABLE_NAME).
@@ -18,8 +18,9 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadSessionOptions, pgOps 
 	if err != nil {
 		return []model.Session{}, fmt.Errorf("dbsessionstorage.Storage.Read: %w", err)
 	}
-	if err := s.db.SelectContext(ctx, rows, sql, args...); err != nil {
+	var rows []model.Session
+	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
 		return []model.Session{}, fmt.Errorf("dbsessionstorage.Storage.Read: %w", err)
 	}
-	return
+	return rows, nil
 }
