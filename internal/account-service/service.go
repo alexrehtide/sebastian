@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/alexrehtide/sebastian/model"
+	"github.com/alexrehtide/sebastian/pkg/validator"
 )
 
 type AccountStorage interface {
@@ -15,14 +16,23 @@ type AccountStorage interface {
 	Delete(ctx context.Context, id uint) error
 }
 
-func New(accountStorage AccountStorage) *Service {
+func New(accountStorage AccountStorage, validate validator.Validate) *Service {
 	return &Service{
 		AccountStorage: accountStorage,
+		v:              validate,
 	}
 }
 
 type Service struct {
 	AccountStorage
+	v validator.Validate
+}
+
+func (s *Service) Create(ctx context.Context, ops model.CreateAccountOptions) (uint, error) {
+	if err := s.v.Struct(ops); err != nil {
+		return 0, err
+	}
+	return s.AccountStorage.Create(ctx, ops)
 }
 
 func (s *Service) ReadByEmail(ctx context.Context, email string) (model.Account, error) {
@@ -45,4 +55,11 @@ func (s *Service) ReadByID(ctx context.Context, id uint) (model.Account, error) 
 		return model.Account{}, errors.New("not found")
 	}
 	return accs[0], nil
+}
+
+func (s *Service) Update(ctx context.Context, id uint, ops model.UpdateAccountOptions) error {
+	if err := s.v.Struct(ops); err != nil {
+		return err
+	}
+	return s.AccountStorage.Update(ctx, id, ops)
 }

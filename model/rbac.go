@@ -13,14 +13,11 @@ type ReadAccountRoleOptions struct {
 }
 
 type CreateAccountRoleOptions struct {
-	AccountID uint
-	Role      Role
+	AccountID uint `validate:"required"`
+	Role      Role `validate:"required"`
 }
 
 var RolePermission = map[Role][]Permission{
-	Guest: {
-		AuthAuthenticate,
-	},
 	User: {
 		AuthAuthorize,
 		AuthLogout,
@@ -32,23 +29,36 @@ var RolePermission = map[Role][]Permission{
 		AccountRead,
 		AccountUpdate,
 
-		AuthAuthorize,
-		AuthLogout,
-		AuthRefresh,
-
 		RBACAddAccountRole,
 		RBACReadAccountRoles,
 		RBACRemoveAccountRole,
 	},
 }
 
+var Roles = []Role{
+	User,
+	Admin,
+}
+
 type Role string
 
 const (
-	Guest Role = "guest"
 	User  Role = "user"
 	Admin Role = "admin"
 )
+
+var Permissions = []Permission{
+	AccountCreate,
+	AccountDelete,
+	AccountRead,
+	AccountUpdate,
+	AuthAuthorize,
+	AuthLogout,
+	AuthRefresh,
+	RBACAddAccountRole,
+	RBACReadAccountRoles,
+	RBACRemoveAccountRole,
+}
 
 type Permission int
 
@@ -57,7 +67,6 @@ const (
 	AccountDelete
 	AccountRead
 	AccountUpdate
-	AuthAuthenticate
 	AuthAuthorize
 	AuthLogout
 	AuthRefresh

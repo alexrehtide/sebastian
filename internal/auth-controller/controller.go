@@ -12,7 +12,7 @@ type AccountProvider interface {
 }
 
 type AuthService interface {
-	Authenticate(ctx context.Context, in model.AuthenticateInput) (model.AuthenticateOutput, error)
+	Authenticate(ctx context.Context, in model.AuthenticateOptions) (model.Tokens, error)
 }
 
 func New(accountProvider AccountProvider, authService AuthService) *Controller {
@@ -27,17 +27,24 @@ type Controller struct {
 	AuthService     AuthService
 }
 
+type AuthenticateInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type AuthenticateOutput struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+
 func (ctrl *Controller) Authenticate(c *fiber.Ctx) error {
-	var input struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var input AuthenticateInput
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
-	output, err := ctrl.AuthService.Authenticate(
+	tokens, err := ctrl.AuthService.Authenticate(
 		c.Context(),
-		model.AuthenticateInput{
+		model.AuthenticateOptions{
 			Email:    input.Email,
 			Password: input.Password,
 		},
@@ -45,7 +52,10 @@ func (ctrl *Controller) Authenticate(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	return c.JSON(output)
+	return c.JSON(AuthenticateOutput{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	})
 }
 
 func (ctrl *Controller) Authorize(c *fiber.Ctx) error {

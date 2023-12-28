@@ -1,11 +1,11 @@
 package model
 
-type AuthenticateInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+type AuthenticateOptions struct {
+	Email    string `validate:"required,email,max=256"`
+	Password string `validate:"required,min=8,max=256"`
 }
 
-type AuthenticateOutput struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+type Tokens struct {
+	AccessToken  string
+	RefreshToken string
 }

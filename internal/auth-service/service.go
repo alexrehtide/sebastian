@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/alexrehtide/sebastian/model"
+	"github.com/alexrehtide/sebastian/pkg/validator"
 )
 
 type AccountService interface {
@@ -18,40 +19,45 @@ type SessionService interface {
 	RefreshSession(ctx context.Context, refreshToken string) (model.Session, error)
 }
 
-func New(accountService AccountService, sessionService SessionService) *AuthService {
+func New(accountService AccountService, sessionService SessionService, validate validator.Validate) *AuthService {
 	return &AuthService{
 		AccountService: accountService,
 		SessionService: sessionService,
+		v:              validate,
 	}
 }
 
 type AuthService struct {
 	AccountService AccountService
 	SessionService SessionService
+	v              validator.Validate
 }
 
-func (a *AuthService) Authenticate(ctx context.Context, in model.AuthenticateInput) (model.AuthenticateOutput, error) {
-	acc, err := a.AccountService.ReadByEmail(ctx, in.Email)
+func (s *AuthService) Authenticate(ctx context.Context, ops model.AuthenticateOptions) (model.Tokens, error) {
+	if err := s.v.Struct(ops); err != nil {
+		return model.Tokens{}, err
+	}
+	acc, err := s.AccountService.ReadByEmail(ctx, ops.Email)
 	if err != nil {
-		return model.AuthenticateOutput{}, err
+		return model.Tokens{}, err
 	}
-	if err := a.verifyPassword(acc.Password, in.Password); err != nil {
-		return model.AuthenticateOutput{}, err
+	if err := s.verifyPassword(acc.Password, ops.Password); err != nil {
+		return model.Tokens{}, err
 	}
-	sessionID, err := a.SessionService.CreateWithAccountID(ctx, acc.ID)
+	sessionID, err := s.SessionService.CreateWithAccountID(ctx, acc.ID)
 	if err != nil {
-		return model.AuthenticateOutput{}, err
+		return model.Tokens{}, err
 	}
-	session, err := a.SessionService.ReadByID(ctx, sessionID)
+	session, err := s.SessionService.ReadByID(ctx, sessionID)
 	if err != nil {
-		return model.AuthenticateOutput{}, err
+		return model.Tokens{}, err
 	}
-	return model.AuthenticateOutput{
+	return model.Tokens{
 		AccessToken:  session.AccessToken,
 		RefreshToken: session.RefreshToken,
 	}, nil
 }
 
-func (a *AuthService) verifyPassword(passwordHash, password string) error {
+func (s *AuthService) verifyPassword(passwordHash, password string) error {
 	panic("TODO: Implement")
 }

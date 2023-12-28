@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/alexrehtide/sebastian/model"
+	"github.com/alexrehtide/sebastian/pkg/validator"
 )
 
 type SessionStorage interface {
@@ -15,14 +16,23 @@ type SessionStorage interface {
 	Update(ctx context.Context, id uint, ops model.UpdateSessionOptions) error
 }
 
-func New(sessionStorage SessionStorage) *Service {
+func New(sessionStorage SessionStorage, validate validator.Validate) *Service {
 	return &Service{
 		SessionStorage: sessionStorage,
+		v:              validate,
 	}
 }
 
 type Service struct {
 	SessionStorage
+	v validator.Validate
+}
+
+func (s *Service) Create(ctx context.Context, ops model.CreateSessionOptions) (uint, error) {
+	if err := s.v.Struct(ops); err != nil {
+		return 0, err
+	}
+	return s.SessionStorage.Create(ctx, ops)
 }
 
 func (s *Service) CreateWithAccountID(ctx context.Context, accountID uint) (uint, error) {
@@ -110,4 +120,11 @@ func (s *Service) readByRefreshToken(ctx context.Context, refreshToken string) (
 		return model.Session{}, errors.New("not found")
 	}
 	return sessions[0], nil
+}
+
+func (s *Service) Update(ctx context.Context, id uint, ops model.UpdateSessionOptions) error {
+	if err := s.v.Struct(ops); err != nil {
+		return err
+	}
+	return s.SessionStorage.Update(ctx, id, ops)
 }

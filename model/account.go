@@ -12,10 +12,10 @@ type ReadAccountOptions struct {
 }
 
 type CreateAccountOptions struct {
-	Email    string
-	Password string
+	Email    string `validate:"required,email,max=256"`
+	Password string `validate:"required,min=8,max=256"`
 }
 
 type UpdateAccountOptions struct {
-	Email string
+	Email string `validate:"email,max=256"`
 }

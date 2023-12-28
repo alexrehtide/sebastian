@@ -19,12 +19,12 @@ type ReadSessionOptions struct {
 }
 
 type CreateSessionOptions struct {
-	AccountID    uint
-	AccessToken  string
-	RefreshToken string
+	AccountID    uint   `validate:"required"`
+	AccessToken  string `validate:"required,len=64"`
+	RefreshToken string `validate:"required,len=64"`
 }
 
 type UpdateSessionOptions struct {
-	AccessToken  string
-	RefreshToken string
+	AccessToken  string `validate:"required,len=64"`
+	RefreshToken string `validate:"required,len=64"`
 }

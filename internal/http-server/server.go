@@ -15,6 +15,7 @@ import (
 	sessionservice "github.com/alexrehtide/sebastian/internal/session-service"
 	sessionstorage "github.com/alexrehtide/sebastian/internal/session-storage"
 	"github.com/alexrehtide/sebastian/model"
+	"github.com/alexrehtide/sebastian/pkg/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
 )
@@ -53,10 +54,12 @@ func New(db *sqlx.DB) *Server {
 	accountStorage := accountstorage.New(db)
 	sessionStorage := sessionstorage.New(db)
 
-	accountService := accountservice.New(accountStorage)
-	sessionService := sessionservice.New(sessionStorage)
-	authService := authservice.New(accountService, sessionService)
-	rbacService := rbacservice.New(accountRoleStorage)
+	validate := validator.New()
+
+	accountService := accountservice.New(accountStorage, validate)
+	sessionService := sessionservice.New(sessionStorage, validate)
+	authService := authservice.New(accountService, sessionService, validate)
+	rbacService := rbacservice.New(accountRoleStorage, validate)
 
 	accountProvider := accountprovider.New()
 
@@ -77,7 +80,7 @@ func New(db *sqlx.DB) *Server {
 	accountRoute.Put("/:id", rbacMiddleware.WithPermission(model.AccountUpdate), accountController.Update)
 
 	authRoute := app.Group("/auth")
-	authRoute.Post("/authenticate", rbacMiddleware.WithPermission(model.AuthAuthenticate), authController.Authenticate)
+	authRoute.Post("/authenticate", authController.Authenticate)
 	authRoute.Get("/authorize", rbacMiddleware.WithPermission(model.AuthAuthorize), authController.Authorize)
 	authRoute.Get("/logout", rbacMiddleware.WithPermission(model.AuthLogout), authController.Logout)
 	authRoute.Post("/refresh", rbacMiddleware.WithPermission(model.AuthRefresh), authController.Refresh)
