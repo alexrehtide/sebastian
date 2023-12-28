@@ -15,7 +15,7 @@ func (s *Storage) Create(ctx context.Context, ops model.CreateAccountRoleOptions
 		Suffix(fmt.Sprintf("RETURNING %s", COLUMN_ID)).
 		ScanContext(ctx, &id)
 	if err != nil {
-		return 0, fmt.Errorf("dbaccountrolestorage.Storage.Create: %w", err)
+		return 0, fmt.Errorf("accountrolestorage.Storage.Create: %w", err)
 	}
 	return id, nil
 }

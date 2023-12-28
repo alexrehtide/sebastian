@@ -10,6 +10,10 @@ type CreateInput struct {
 	Password string `json:"password"`
 }
 
+type CreateOutput struct {
+	uint
+}
+
 func (ctrl *Controller) Create(c *fiber.Ctx) error {
 	var input CreateInput
 	if err := c.BodyParser(&input); err != nil {
@@ -25,5 +29,5 @@ func (ctrl *Controller) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	return c.JSON(output)
+	return c.JSON(CreateOutput{output})
 }

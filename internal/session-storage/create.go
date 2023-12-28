@@ -16,7 +16,7 @@ func (s *Storage) Create(ctx context.Context, ops model.CreateSessionOptions) (i
 		Suffix(fmt.Sprintf("RETURNING %s", COLUMN_ID)).
 		ScanContext(ctx, &id)
 	if err != nil {
-		return 0, fmt.Errorf("dbsessionstorage.Storage.Create: %w", err)
+		return 0, fmt.Errorf("sessionstorage.Storage.Create: %w", err)
 	}
 	return id, nil
 }

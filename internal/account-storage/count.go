@@ -13,9 +13,9 @@ func (s *Storage) Count(ctx context.Context, ops model.ReadAccountOptions) (coun
 		From(TABLE_NAME).
 		Where(s.buildWhere(ops)).
 		QueryRowContext(ctx).
-		Scan(count)
+		Scan(&count)
 	if err != nil {
-		return 0, fmt.Errorf("dbaccountstorage.Storage.Count: %w", err)
+		return 0, fmt.Errorf("accountstorage.Storage.Count: %w", err)
 	}
 	return
 }

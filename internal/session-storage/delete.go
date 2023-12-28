@@ -13,7 +13,7 @@ func (s *Storage) Delete(ctx context.Context, id uint) error {
 		Where(squirrel.Eq{COLUMN_ID: id}).
 		QueryContext(ctx)
 	if err != nil {
-		return fmt.Errorf("dbsessionstorage.Storage.Delete: %w", err)
+		return fmt.Errorf("sessionstorage.Storage.Delete: %w", err)
 	}
 	return nil
 }

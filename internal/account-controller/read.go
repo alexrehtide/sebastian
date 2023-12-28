@@ -11,6 +11,8 @@ type ReadInput struct {
 	Offset int    `json:"offset"`
 }
 
+type ReadOutput model.PaginatedOutput[model.Account]
+
 func (ctrl *Controller) Read(c *fiber.Ctx) error {
 	var input ReadInput
 	if err := c.BodyParser(&input); err != nil {
@@ -37,7 +39,7 @@ func (ctrl *Controller) Read(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	return c.JSON(model.PaginatedOutput[model.Account]{
+	return c.JSON(ReadOutput{
 		Rows:  rows,
 		Count: count,
 	})

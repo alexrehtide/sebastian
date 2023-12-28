@@ -8,7 +8,6 @@ import (
 )
 
 type AccountRoleStorage interface {
-	Count(ctx context.Context, ops model.ReadAccountRoleOptions) (int, error)
 	Create(ctx context.Context, ops model.CreateAccountRoleOptions) (uint, error)
 	Delete(ctx context.Context, id uint) error
 	Read(ctx context.Context, ops model.ReadAccountRoleOptions, pgOps model.PaginationOptions) ([]model.AccountRole, error)

@@ -1,9 +1,16 @@
 package accountcontroller
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/alexrehtide/sebastian/model"
+	"github.com/gofiber/fiber/v2"
+)
 
 type ReadByIDInput struct {
 	ID uint `json:"id"`
+}
+
+type ReadByIDOutput struct {
+	model.Account
 }
 
 func (ctrl *Controller) ReadByID(c *fiber.Ctx) error {
@@ -15,5 +22,5 @@ func (ctrl *Controller) ReadByID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	return c.JSON(output)
+	return c.JSON(ReadByIDOutput{output})
 }

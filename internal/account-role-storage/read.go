@@ -7,7 +7,7 @@ import (
 	"github.com/alexrehtide/sebastian/model"
 )
 
-func (s *Storage) Read(ctx context.Context, ops model.ReadAccountRoleOptions, pgOps model.PaginationOptions) ([]model.AccountRole, error) {
+func (s *Storage) Read(ctx context.Context, ops model.ReadAccountRoleOptions, pgOps model.PaginationOptions) (rows []model.AccountRole, err error) {
 	b := s.sq.
 		Select(COLUMN_ID, COLUMN_ACCOUNT_ID, COLUMN_ROLE).
 		From(TABLE_NAME).
@@ -17,11 +17,10 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadAccountRoleOptions, pg
 	}
 	sql, args, err := b.Offset(uint64(pgOps.Offset)).ToSql()
 	if err != nil {
-		return []model.AccountRole{}, fmt.Errorf("dbaccountrolestorage.Storage.Read: %w", err)
+		return []model.AccountRole{}, fmt.Errorf("accountrolestorage.Storage.Read: %w", err)
 	}
-	var rows []model.AccountRole
 	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
-		return []model.AccountRole{}, fmt.Errorf("dbaccountrolestorage.Storage.Read: %w", err)
+		return []model.AccountRole{}, fmt.Errorf("accountrolestorage.Storage.Read: %w", err)
 	}
 	return rows, nil
 }

@@ -18,7 +18,7 @@ func (s *Storage) Update(ctx context.Context, id uint, ops model.UpdateSessionOp
 		Where(squirrel.Eq{COLUMN_ID: id}).
 		ExecContext(ctx)
 	if err != nil {
-		return fmt.Errorf("dbsessionstorage.Storage.Update: %w", err)
+		return fmt.Errorf("sessionstorage.Storage.Update: %w", err)
 	}
 	return nil
 }

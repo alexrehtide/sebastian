@@ -7,7 +7,7 @@ import (
 	"github.com/alexrehtide/sebastian/model"
 )
 
-func (s *Storage) Read(ctx context.Context, ops model.ReadAccountOptions, pgOps model.PaginationOptions) ([]model.Account, error) {
+func (s *Storage) Read(ctx context.Context, ops model.ReadAccountOptions, pgOps model.PaginationOptions) (rows []model.Account, err error) {
 	sql, args, err := s.sq.
 		Select(COLUMN_ID, COLUMN_EMAIL, COLUMN_PASSWORD_HASH).
 		From(TABLE_NAME).
@@ -16,11 +16,10 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadAccountOptions, pgOps 
 		Offset(uint64(pgOps.Offset)).
 		ToSql()
 	if err != nil {
-		return []model.Account{}, fmt.Errorf("dbaccountstorage.Storage.Read: %w", err)
+		return []model.Account{}, fmt.Errorf("accountstorage.Storage.Read: %w", err)
 	}
-	var rows []model.Account
 	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
-		return []model.Account{}, fmt.Errorf("dbaccountstorage.Storage.Read: %w", err)
+		return []model.Account{}, fmt.Errorf("accountstorage.Storage.Read: %w", err)
 	}
 	return rows, nil
 }
