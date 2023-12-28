@@ -2,8 +2,9 @@ package accountservice
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
+	customerror "github.com/alexrehtide/sebastian/internal/custom-error"
 	"github.com/alexrehtide/sebastian/model"
 	"github.com/alexrehtide/sebastian/pkg/validator"
 )
@@ -41,7 +42,7 @@ func (s *Service) ReadByEmail(ctx context.Context, email string) (model.Account,
 		return model.Account{}, err
 	}
 	if len(accs) == 0 {
-		return model.Account{}, errors.New("not found")
+		return model.Account{}, fmt.Errorf("accountservice.Service.ReadByEmail: %w", customerror.ErrRecordNotFound)
 	}
 	return accs[0], nil
 }
@@ -52,7 +53,7 @@ func (s *Service) ReadByID(ctx context.Context, id uint) (model.Account, error) 
 		return model.Account{}, err
 	}
 	if len(accs) == 0 {
-		return model.Account{}, errors.New("not found")
+		return model.Account{}, fmt.Errorf("accountservice.Service.ReadByID: %w", customerror.ErrRecordNotFound)
 	}
 	return accs[0], nil
 }

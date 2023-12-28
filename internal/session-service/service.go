@@ -2,8 +2,9 @@ package sessionservice
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
+	customerror "github.com/alexrehtide/sebastian/internal/custom-error"
 	"github.com/alexrehtide/sebastian/model"
 	"github.com/alexrehtide/sebastian/pkg/validator"
 )
@@ -38,17 +39,17 @@ func (s *Service) Create(ctx context.Context, ops model.CreateSessionOptions) (u
 func (s *Service) CreateWithAccountID(ctx context.Context, accountID uint) (uint, error) {
 	return s.Create(ctx, model.CreateSessionOptions{
 		AccountID:    accountID,
-		AccessToken:  s.generateToken(),
-		RefreshToken: s.generateToken(),
+		AccessToken:  s.GenerateToken(),
+		RefreshToken: s.GenerateToken(),
 	})
 }
 
-func (s *Service) generateToken() string {
+func (s *Service) GenerateToken() string {
 	panic("TODO: Implement")
 }
 
 func (s *Service) Verify(ctx context.Context, accessToken string) (model.Session, error) {
-	session, err := s.readByAccessToken(ctx, accessToken)
+	session, err := s.ReadByAccessToken(ctx, accessToken)
 	if err != nil {
 		return model.Session{}, err
 	}
@@ -56,7 +57,7 @@ func (s *Service) Verify(ctx context.Context, accessToken string) (model.Session
 	return session, nil
 }
 
-func (s *Service) readByAccessToken(ctx context.Context, accessToken string) (model.Session, error) {
+func (s *Service) ReadByAccessToken(ctx context.Context, accessToken string) (model.Session, error) {
 	sessions, err := s.Read(
 		ctx,
 		model.ReadSessionOptions{
@@ -70,7 +71,7 @@ func (s *Service) readByAccessToken(ctx context.Context, accessToken string) (mo
 		return model.Session{}, err
 	}
 	if len(sessions) == 0 {
-		return model.Session{}, errors.New("not found")
+		return model.Session{}, fmt.Errorf("sessionservice.Service.ReadByAccessToken: %w", customerror.ErrRecordNotFound)
 	}
 	return sessions[0], nil
 }
@@ -89,13 +90,13 @@ func (s *Service) ReadByID(ctx context.Context, id uint) (model.Session, error) 
 		return model.Session{}, err
 	}
 	if len(sessions) == 0 {
-		return model.Session{}, errors.New("not found")
+		return model.Session{}, fmt.Errorf("sessionservice.Service.ReadByID: %w", customerror.ErrRecordNotFound)
 	}
 	return sessions[0], nil
 }
 
 func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (model.Session, error) {
-	session, err := s.readByRefreshToken(ctx, refreshToken)
+	session, err := s.ReadByRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return model.Session{}, err
 	}
@@ -103,7 +104,7 @@ func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (mode
 	return session, nil
 }
 
-func (s *Service) readByRefreshToken(ctx context.Context, refreshToken string) (model.Session, error) {
+func (s *Service) ReadByRefreshToken(ctx context.Context, refreshToken string) (model.Session, error) {
 	sessions, err := s.Read(
 		ctx,
 		model.ReadSessionOptions{
@@ -117,7 +118,7 @@ func (s *Service) readByRefreshToken(ctx context.Context, refreshToken string) (
 		return model.Session{}, err
 	}
 	if len(sessions) == 0 {
-		return model.Session{}, errors.New("not found")
+		return model.Session{}, fmt.Errorf("sessionservice.Service.ReadByRefreshToken: %w", customerror.ErrRecordNotFound)
 	}
 	return sessions[0], nil
 }
