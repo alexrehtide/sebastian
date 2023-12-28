@@ -39,7 +39,7 @@ func New(db *sqlx.DB) *Server {
 	authMiddleware := authmiddleware.New(accountProvider, accountService, sessionProvider, sessionService)
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
 	accountController := accountcontroller.New(accountService)
-	authController := authcontroller.New(accountProvider, authService)
+	authController := authcontroller.New(accountProvider, authService, rbacService)
 	rbacController := rbaccontroller.New(rbacService)
 
 	app := fiber.New()

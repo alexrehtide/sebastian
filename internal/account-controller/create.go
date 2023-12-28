@@ -11,7 +11,7 @@ type CreateInput struct {
 }
 
 type CreateOutput struct {
-	uint
+	CreatedID uint `json:"createdId"`
 }
 
 func (ctrl *Controller) Create(c *fiber.Ctx) error {
@@ -29,5 +29,5 @@ func (ctrl *Controller) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	return c.JSON(CreateOutput{output})
+	return c.JSON(CreateOutput{CreatedID: output})
 }
