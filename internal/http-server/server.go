@@ -20,35 +20,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type AuthMiddleware interface {
-	Authorize(c *fiber.Ctx) error
-}
-
-type RBACMiddleware interface {
-	WithPermission(permission model.Permission) fiber.Handler
-}
-
-type AccountController interface {
-	Create(c *fiber.Ctx) error
-	Delete(c *fiber.Ctx) error
-	Read(c *fiber.Ctx) error
-	ReadByID(c *fiber.Ctx) error
-	Update(c *fiber.Ctx) error
-}
-
-type AuthController interface {
-	Authenticate(c *fiber.Ctx) error
-	Authorize(c *fiber.Ctx) error
-	Logout(c *fiber.Ctx) error
-	Refresh(c *fiber.Ctx) error
-}
-
-type RBACController interface {
-	AddAccountRole(c *fiber.Ctx) error
-	ReadAccountRoles(c *fiber.Ctx) error
-	RemoveAccountRole(c *fiber.Ctx) error
-}
-
 func New(db *sqlx.DB) *Server {
 	accountRoleStorage := accountrolestorage.New(db)
 	accountStorage := accountstorage.New(db)
@@ -63,11 +34,11 @@ func New(db *sqlx.DB) *Server {
 
 	accountProvider := accountprovider.New()
 
-	var authMiddleware AuthMiddleware = authmiddleware.New(accountProvider)
-	var rbacMiddleware RBACMiddleware = rbacmiddleware.New(accountProvider, rbacService)
-	var accountController AccountController = accountcontroller.New(accountService)
-	var authController AuthController = authcontroller.New(accountProvider, authService)
-	var rbacController RBACController = rbaccontroller.New(rbacService)
+	authMiddleware := authmiddleware.New(accountProvider)
+	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
+	accountController := accountcontroller.New(accountService)
+	authController := authcontroller.New(accountProvider, authService)
+	rbacController := rbaccontroller.New(rbacService)
 
 	app := fiber.New()
 	app.Use(authMiddleware.Authorize)
