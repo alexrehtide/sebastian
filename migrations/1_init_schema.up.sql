@@ -5,7 +5,7 @@ CREATE TABLE account (
   PRIMARY KEY(id)
 );
 
-INSERT INTO account(email,password) VALUES ('admin@admin.ru','d033e22ae348aeb5660fc2140aec35850c4da997');
+INSERT INTO account(email,password) VALUES ('admin@admin.ru','f865b53623b121fd34ee5426c792e5c33af8c227');
 
 CREATE TABLE account_role (
   id INT GENERATED ALWAYS AS IDENTITY,

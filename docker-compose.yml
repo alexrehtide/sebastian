@@ -1,25 +1,33 @@
-version: '3'
+version: "3"
+
+name: sebastian-prod
+
 services:
-  golang:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  backend:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3000:3000"
-    volumes:
-      - "./:/app/"
+      dockerfile: Dockerfile.prod
     depends_on:
       - postgres
       - mongo
-  
+
   postgres:
     image: postgres:14
     env_file: .env
     volumes:
       - ./.postgres_data:/var/lib/postgresql/data
     ports:
-     - "5432:5432"
-  
+      - "5432:5432"
+
   mongo:
     image: mongo
     volumes:

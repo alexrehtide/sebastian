@@ -22,17 +22,17 @@ func main() {
 
 	log := logrus.New()
 
-	config, err := config.New()
+	conf, err := config.New()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	sqlDB, err := sqlconnection.New(sqlconnection.PostgresOptions{
-		User:     config.PostgresUser,
-		Password: config.PostgresPassword,
-		Host:     config.PostgresHost,
-		Port:     config.PostgresPort,
-		DBName:   config.PostgresName,
+		User:     conf.PostgresUser,
+		Password: conf.PostgresPassword,
+		Host:     conf.PostgresHost,
+		Port:     conf.PostgresPort,
+		DBName:   conf.PostgresName,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -43,7 +43,7 @@ func main() {
 		log.Fatalf("Connection with db failed: %v", err)
 	}
 
-	migrator, err := migrator.New(
+	m, err := migrator.New(
 		migrator.MigratorOptions{
 			DBConn:          sqlDB,
 			MigrationsTable: "migrations_table",
@@ -54,14 +54,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := migrator.Up(); err != nil && err.Error() != "no change" {
+	if err := m.Up(); err != nil && err.Error() != "no change" {
 		log.Fatal(err)
 	}
 
 	mongoDB, err := mongoconnection.New(mainCtx, mongoconnection.MongoOptions{
-		Host: config.MongoHost,
-		Port: config.MongoPort,
-		Name: config.MongoName,
+		Host: conf.MongoHost,
+		Port: conf.MongoPort,
+		Name: conf.MongoName,
 	})
 	if err != nil {
 		log.Fatal(err)

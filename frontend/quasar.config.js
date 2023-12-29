@@ -64,7 +64,8 @@ module.exports = configure(function (/* ctx */) {
       // extendViteConf (viteConf) {},
       // viteVuePluginOptions: {},
       alias: {
-        views: path.join(__dirname, './src/views')
+        views: path.join(__dirname, './src/views'),
+        api: path.join(__dirname, './src/api'),
       },
 
       vitePlugins: [
@@ -88,7 +89,25 @@ module.exports = configure(function (/* ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
       // https: true
-      open: true, // opens browser window automatically
+      open: false, // opens browser window automatically
+      port: 9000,
+      proxy: {
+        '/api': {
+          target: 'http://backend:3000',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+      },
+      // host: true,
+      // strictPort: true,
+      hmr: {
+        port: 9010,
+      },
+      // watch: {
+      //   usePolling: true,
+      //   // useFsEvents: true,
+      //   // interval: 100,
+      // },
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
