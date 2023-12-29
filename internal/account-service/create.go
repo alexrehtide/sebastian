@@ -12,6 +12,7 @@ func (s *Service) Create(ctx context.Context, ops model.CreateAccountOptions) (u
 	if err := s.v.Struct(ops); err != nil {
 		return 0, fmt.Errorf("accountservice.Service.Create: %w", err)
 	}
+	ops.Password = s.hash(ops.Password)
 	id, err := s.AccountStorage.Create(ctx, ops)
 	if err != nil {
 		return 0, fmt.Errorf("accountservice.Service.Create: %w", err)

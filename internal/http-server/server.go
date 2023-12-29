@@ -1,6 +1,8 @@
 package httpserver
 
 import (
+	"database/sql"
+
 	accountcontroller "github.com/alexrehtide/sebastian/internal/account-controller"
 	accountprovider "github.com/alexrehtide/sebastian/internal/account-provider"
 	accountrolestorage "github.com/alexrehtide/sebastian/internal/account-role-storage"
@@ -24,10 +26,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func New(mongoClient *mongo.Client, db *sqlx.DB, log *logrus.Logger) *Server {
-	accountRoleStorage := accountrolestorage.New(db)
-	accountStorage := accountstorage.New(db)
-	sessionStorage := sessionstorage.New(db)
+func New(mongoDB *mongo.Database, sqlDB *sql.DB, log *logrus.Logger) *Server {
+	sqlxDB := sqlx.NewDb(sqlDB, "postgres")
+
+	accountRoleStorage := accountrolestorage.New(sqlxDB)
+	accountStorage := accountstorage.New(sqlxDB)
+	sessionStorage := sessionstorage.New(sqlxDB)
 
 	validate := validator.New()
 
@@ -45,7 +49,7 @@ func New(mongoClient *mongo.Client, db *sqlx.DB, log *logrus.Logger) *Server {
 	authController := authcontroller.New(accountProvider, authService, rbacService)
 	rbacController := rbaccontroller.New(rbacService)
 
-	log.Hooks.Add(mongohooker.New(mongoClient.Database("sebastian").Collection("log"), sessionProvider))
+	log.Hooks.Add(mongohooker.New(mongoDB.Collection("log"), sessionProvider))
 
 	app := fiber.New()
 	app.Use(authMiddleware.Authorize)

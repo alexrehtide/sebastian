@@ -15,7 +15,7 @@ func (s *AuthService) Authenticate(ctx context.Context, ops model.AuthenticateOp
 	if err != nil {
 		return model.Tokens{}, fmt.Errorf("authservice.AuthService.Authenticate: %w", err)
 	}
-	if err := s.verifyPassword(acc.Password, ops.Password); err != nil {
+	if err := s.AccountService.CheckPassword(acc, ops.Password); err != nil {
 		return model.Tokens{}, fmt.Errorf("authservice.AuthService.Authenticate: %w", err)
 	}
 	sessionID, err := s.SessionService.CreateWithAccountID(ctx, acc.ID)
