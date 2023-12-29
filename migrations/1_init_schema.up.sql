@@ -31,3 +31,20 @@ CREATE TABLE session (
     FOREIGN KEY(account_id) 
 	    REFERENCES account(id)
 );
+
+CREATE TABLE log (
+  id INT GENERATED ALWAYS AS IDENTITY,
+  account_id INT,
+  session_id INT,
+  level varchar(5) NOT NULL,
+  message TEXT,
+  data TEXT,
+  created_at TIMESTAMP WITH TIME ZONE,
+  PRIMARY KEY(id),
+  CONSTRAINT fk_log_account_id
+    FOREIGN KEY(account_id) 
+	    REFERENCES account(id),
+  CONSTRAINT fk_log_session_id
+    FOREIGN KEY(session_id) 
+	    REFERENCES session(id)
+);

@@ -9,7 +9,6 @@ import (
 	httpserver "github.com/alexrehtide/sebastian/internal/http-server"
 	"github.com/alexrehtide/sebastian/migrations"
 	"github.com/alexrehtide/sebastian/platform/config"
-	mongoconnection "github.com/alexrehtide/sebastian/platform/database/mongo-connection"
 	sqlconnection "github.com/alexrehtide/sebastian/platform/database/sql-connection"
 	"github.com/alexrehtide/sebastian/platform/migrator"
 	"github.com/sirupsen/logrus"
@@ -21,6 +20,7 @@ func main() {
 	defer stop()
 
 	log := logrus.New()
+	log.SetFormatter(new(logrus.TextFormatter))
 
 	conf, err := config.New()
 	if err != nil {
@@ -58,16 +58,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mongoDB, err := mongoconnection.New(mainCtx, mongoconnection.MongoOptions{
-		Host: conf.MongoHost,
-		Port: conf.MongoPort,
-		Name: conf.MongoName,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	server := httpserver.New(mongoDB, sqlDB, log)
+	server := httpserver.New(sqlDB, log)
 
 	g, gCtx := errgroup.WithContext(mainCtx)
 	g.Go(func() error {

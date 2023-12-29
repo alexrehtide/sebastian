@@ -11,7 +11,8 @@ import (
 	authcontroller "github.com/alexrehtide/sebastian/internal/auth-controller"
 	authmiddleware "github.com/alexrehtide/sebastian/internal/auth-middleware"
 	authservice "github.com/alexrehtide/sebastian/internal/auth-service"
-	mongohooker "github.com/alexrehtide/sebastian/internal/mongo-hooker"
+	logstorage "github.com/alexrehtide/sebastian/internal/log-storage"
+	logrushooker "github.com/alexrehtide/sebastian/internal/logrus-hooker"
 	rbaccontroller "github.com/alexrehtide/sebastian/internal/rbac-controller"
 	rbacmiddleware "github.com/alexrehtide/sebastian/internal/rbac-middleware"
 	rbacservice "github.com/alexrehtide/sebastian/internal/rbac-service"
@@ -23,15 +24,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func New(mongoDB *mongo.Database, sqlDB *sql.DB, log *logrus.Logger) *Server {
+func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	sqlxDB := sqlx.NewDb(sqlDB, "postgres")
 
 	accountRoleStorage := accountrolestorage.New(sqlxDB)
 	accountStorage := accountstorage.New(sqlxDB)
 	sessionStorage := sessionstorage.New(sqlxDB)
+	logStorage := logstorage.New(sqlxDB)
 
 	validate := validator.New()
 
@@ -49,7 +50,7 @@ func New(mongoDB *mongo.Database, sqlDB *sql.DB, log *logrus.Logger) *Server {
 	authController := authcontroller.New(accountProvider, authService, rbacService)
 	rbacController := rbaccontroller.New(rbacService)
 
-	log.Hooks.Add(mongohooker.New(mongoDB.Collection("log"), sessionProvider))
+	log.Hooks.Add(logrushooker.New(logStorage, sessionProvider))
 
 	app := fiber.New()
 	app.Use(authMiddleware.Authorize)

@@ -24,19 +24,11 @@ services:
       - "./:/app/"
     depends_on:
       - postgres
-      - mongo
   
   postgres:
-    image: postgres:14
+    image: postgres
     env_file: .env
     volumes:
       - ./.postgres_data:/var/lib/postgresql/data
     ports:
      - "5432:5432"
-  
-  mongo:
-    image: mongo
-    volumes:
-      - ./.mongo_data:/data/db
-    ports:
-      - "27017:27017"
