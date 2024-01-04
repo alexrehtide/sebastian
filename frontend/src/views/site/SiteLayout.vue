@@ -6,19 +6,22 @@
         <q-input v-model="password" type="password" label="Password" />
         <q-btn @click="authenticate">Войти</q-btn>
         <q-btn @click="authorize">Пользователь</q-btn>
+
+        <q-img v-if="totpUrl" :src="totpUrl" width="200px" height="200px"></q-img>
       </q-page>
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
 import api from "api";
-import { ref } from "vue";
-import { reactive } from "vue";
+import { onMounted } from "vue";
+import { ref, reactive } from "vue";
+import qrcode from "qrcode";
 
 const email = ref("");
 const password = ref("");
+const totpUrl = ref<string>("");
 
 const user = reactive({
   email: "",
@@ -33,8 +36,28 @@ const authenticate = () => {
 };
 
 const authorize = () => {
-  return api("/api/auth/authorize").then(console.log);
+  return api("/api/auth/authorize");
 };
+
+onMounted(() => {
+  api("/api/totp/generate").then((data) => {
+    qrcode.toDataURL(
+      data.url,
+      {
+        errorCorrectionLevel: "H",
+        type: "image/png",
+        margin: 1,
+      },
+      (err, url) => {
+        if (err) {
+          return;
+        }
+
+        totpUrl.value = url;
+      }
+    );
+  });
+});
 </script>
 
 <style scoped lang="scss"></style>

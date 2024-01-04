@@ -12,13 +12,20 @@ type AccountProvider interface {
 
 type AuthService interface {
 	Authenticate(ctx context.Context, in model.AuthenticateOptions) (model.Tokens, error)
+	CheckLoginAttempt(ctx context.Context, ip string) error
+	FailLoginAttempt(ctx context.Context, ip string) error
+	SuccessLoginAttempt(ctx context.Context, ip string) error
 }
 
 type RBACService interface {
 	ReadAccountRoles(ctx context.Context, accountID uint) ([]model.Role, error)
 }
 
-func New(accountProvider AccountProvider, authService AuthService, rbacService RBACService) *Controller {
+func New(
+	accountProvider AccountProvider,
+	authService AuthService,
+	rbacService RBACService,
+) *Controller {
 	return &Controller{
 		AccountProvider: accountProvider,
 		AuthService:     authService,

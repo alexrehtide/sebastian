@@ -13,6 +13,13 @@ type AccountService interface {
 	ReadByID(ctx context.Context, id uint) (model.Account, error)
 }
 
+type LoginAttemptStorage interface {
+	Create(ctx context.Context, ops model.CreateLoginAttemptOptions) (uint, error)
+	Delete(ctx context.Context, ip string) error
+	Read(ctx context.Context, ops model.ReadLoginAttemptOptions, pgOps model.PaginationOptions) ([]model.LoginAttempt, error)
+	Update(ctx context.Context, id uint, ops model.UpdateLoginAttemptOptions) error
+}
+
 type SessionService interface {
 	CreateWithAccountID(ctx context.Context, accountID uint) (uint, error)
 	Verify(session model.Session) error
@@ -20,16 +27,23 @@ type SessionService interface {
 	RefreshSession(ctx context.Context, refreshToken string) (model.Session, error)
 }
 
-func New(accountService AccountService, sessionService SessionService, validate validator.Validate) *AuthService {
-	return &AuthService{
-		AccountService: accountService,
-		SessionService: sessionService,
-		v:              validate,
+func New(
+	accountService AccountService,
+	loginAttemptStorage LoginAttemptStorage,
+	sessionService SessionService,
+	validate validator.Validate,
+) *Service {
+	return &Service{
+		AccountService:      accountService,
+		LoginAttemptStorage: loginAttemptStorage,
+		SessionService:      sessionService,
+		v:                   validate,
 	}
 }
 
-type AuthService struct {
-	AccountService AccountService
-	SessionService SessionService
-	v              validator.Validate
+type Service struct {
+	AccountService      AccountService
+	LoginAttemptStorage LoginAttemptStorage
+	SessionService      SessionService
+	v                   validator.Validate
 }

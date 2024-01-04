@@ -22,6 +22,9 @@ var RolePermission = map[Role][]Permission{
 		AuthAuthorize,
 		AuthLogout,
 		AuthRefresh,
+
+		TOTPGenerate,
+		TOTPValidate,
 	},
 	Admin: {
 		AccountCreate,
@@ -58,6 +61,8 @@ var Permissions = []Permission{
 	RBACAddAccountRole,
 	RBACReadAccountRoles,
 	RBACRemoveAccountRole,
+	TOTPGenerate,
+	TOTPValidate,
 }
 
 type Permission int
@@ -73,4 +78,6 @@ const (
 	RBACAddAccountRole
 	RBACReadAccountRoles
 	RBACRemoveAccountRole
+	TOTPGenerate
+	TOTPValidate
 )

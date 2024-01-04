@@ -1,9 +1,10 @@
 package model
 
 type Account struct {
-	ID       uint   `json:"id" db:"id"`
-	Email    string `json:"email" db:"email"`
-	Password string `json:"-" db:"password"`
+	ID         uint   `json:"id" db:"id"`
+	Email      string `json:"email" db:"email"`
+	Password   string `json:"-" db:"password"`
+	TOTPSecret []byte `json:"-" db:"totp_secret"`
 }
 
 type ReadAccountOptions struct {

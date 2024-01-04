@@ -7,7 +7,7 @@ import (
 	"github.com/alexrehtide/sebastian/model"
 )
 
-func (s *AuthService) Authenticate(ctx context.Context, ops model.AuthenticateOptions) (model.Tokens, error) {
+func (s *Service) Authenticate(ctx context.Context, ops model.AuthenticateOptions) (model.Tokens, error) {
 	if err := s.v.Struct(ops); err != nil {
 		return model.Tokens{}, fmt.Errorf("authservice.AuthService.Authenticate: %w", err)
 	}

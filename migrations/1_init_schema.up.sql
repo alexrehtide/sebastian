@@ -2,10 +2,11 @@ CREATE TABLE account (
   id INT GENERATED ALWAYS AS IDENTITY,
   email varchar(256) NOT NULL,
   password varchar(256) NOT NULL,
+  totp_secret bytea,
   PRIMARY KEY(id)
 );
 
-INSERT INTO account(email,password) VALUES ('admin@admin.ru','f865b53623b121fd34ee5426c792e5c33af8c227');
+INSERT INTO account(email,password,totp_secret) VALUES ('admin@admin.ru','f865b53623b121fd34ee5426c792e5c33af8c227',E'\\xAAAAAAAAAAAAAAAAAAAA');
 
 CREATE TABLE account_role (
   id INT GENERATED ALWAYS AS IDENTITY,
@@ -47,4 +48,12 @@ CREATE TABLE log (
   CONSTRAINT fk_log_session_id
     FOREIGN KEY(session_id) 
 	    REFERENCES session(id)
+);
+
+CREATE TABLE login_attempt (
+  id INT GENERATED ALWAYS AS IDENTITY,
+  ip TEXT,
+  count INT,
+  last_failed TIMESTAMP WITH TIME ZONE,
+  PRIMARY KEY(id)
 );

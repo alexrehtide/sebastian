@@ -1,13 +1,16 @@
 import axios from "axios";
 
-type Api = Authorize & Authenticate;
+type Api = AuthAuthorize & AuthAuthenticate & TOTPGenerate;
 
-type Authorize = (path: "/api/auth/authorize") => Promise<AuthorizeOutput>;
-type AuthorizeOutput = { id: number; email: string };
+type AuthAuthorize = (path: "/api/auth/authorize") => Promise<AuthAuthorizeOutput>;
+type AuthAuthorizeOutput = { id: number; email: string };
 
-type Authenticate = (path: "/api/auth/authenticate", body: AuthenticateInput) => Promise<AuthenticateOutput>;
-type AuthenticateInput = { email: string; password: string };
-type AuthenticateOutput = { accessToken: string; refreshToken: string };
+type AuthAuthenticate = (path: "/api/auth/authenticate", body: AuthAuthenticateInput) => Promise<AuthAuthenticateOutput>;
+type AuthAuthenticateInput = { email: string; password: string };
+type AuthAuthenticateOutput = { accessToken: string; refreshToken: string };
+
+type TOTPGenerate = (path: "/api/totp/generate") => Promise<TOTPGenerateOutput>
+type TOTPGenerateOutput = { url: string }
 
 const api: Api = (path: string, body: any = {}): any => {
   return axios

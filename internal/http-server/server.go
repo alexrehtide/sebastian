@@ -12,6 +12,7 @@ import (
 	authmiddleware "github.com/alexrehtide/sebastian/internal/auth-middleware"
 	authservice "github.com/alexrehtide/sebastian/internal/auth-service"
 	logstorage "github.com/alexrehtide/sebastian/internal/log-storage"
+	loginattemptstorage "github.com/alexrehtide/sebastian/internal/login-attempt-storage"
 	logrushooker "github.com/alexrehtide/sebastian/internal/logrus-hooker"
 	rbaccontroller "github.com/alexrehtide/sebastian/internal/rbac-controller"
 	rbacmiddleware "github.com/alexrehtide/sebastian/internal/rbac-middleware"
@@ -19,6 +20,8 @@ import (
 	sessionprovider "github.com/alexrehtide/sebastian/internal/session-provider"
 	sessionservice "github.com/alexrehtide/sebastian/internal/session-service"
 	sessionstorage "github.com/alexrehtide/sebastian/internal/session-storage"
+	totpcontroller "github.com/alexrehtide/sebastian/internal/totp-controller"
+	totpservice "github.com/alexrehtide/sebastian/internal/totp-service"
 	"github.com/alexrehtide/sebastian/model"
 	"github.com/alexrehtide/sebastian/pkg/validator"
 	"github.com/gofiber/fiber/v2"
@@ -37,9 +40,11 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	validate := validator.New()
 
 	accountService := accountservice.New(accountStorage, log, validate)
+	loginAttemptStorage := loginattemptstorage.New(sqlxDB)
 	sessionService := sessionservice.New(log, sessionStorage, validate)
-	authService := authservice.New(accountService, sessionService, validate)
+	authService := authservice.New(accountService, loginAttemptStorage, sessionService, validate)
 	rbacService := rbacservice.New(accountRoleStorage, validate)
+	totpService := totpservice.New()
 
 	accountProvider := accountprovider.New()
 	sessionProvider := sessionprovider.New()
@@ -49,6 +54,7 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	accountController := accountcontroller.New(accountService)
 	authController := authcontroller.New(accountProvider, authService, rbacService)
 	rbacController := rbaccontroller.New(rbacService)
+	totpController := totpcontroller.New(accountProvider, totpService)
 
 	log.Hooks.Add(logrushooker.New(logStorage, sessionProvider))
 
@@ -81,6 +87,12 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 		g.Post("/add_account_role", wp(model.RBACAddAccountRole), rbacController.AddAccountRole)
 		g.Post("/read_account_roles", wp(model.RBACReadAccountRoles), rbacController.ReadAccountRoles)
 		g.Post("/remove_account_role", wp(model.RBACRemoveAccountRole), rbacController.RemoveAccountRole)
+	}
+
+	{
+		g := app.Group("/totp")
+		g.Post("/generate", wp(model.TOTPGenerate), totpController.Generate)
+		g.Post("/validate", wp(model.TOTPValidate), totpController.Validate)
 	}
 
 	return &Server{
