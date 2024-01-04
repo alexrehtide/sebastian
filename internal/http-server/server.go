@@ -12,6 +12,7 @@ import (
 	authmiddleware "github.com/alexrehtide/sebastian/internal/auth-middleware"
 	authservice "github.com/alexrehtide/sebastian/internal/auth-service"
 	logstorage "github.com/alexrehtide/sebastian/internal/log-storage"
+	loginattemptservice "github.com/alexrehtide/sebastian/internal/login-attempt-service"
 	loginattemptstorage "github.com/alexrehtide/sebastian/internal/login-attempt-storage"
 	logrushooker "github.com/alexrehtide/sebastian/internal/logrus-hooker"
 	rbaccontroller "github.com/alexrehtide/sebastian/internal/rbac-controller"
@@ -42,7 +43,8 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	accountService := accountservice.New(accountStorage, log, validate)
 	loginAttemptStorage := loginattemptstorage.New(sqlxDB)
 	sessionService := sessionservice.New(log, sessionStorage, validate)
-	authService := authservice.New(accountService, loginAttemptStorage, sessionService, validate)
+	authService := authservice.New(accountService, sessionService, validate)
+	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
 	rbacService := rbacservice.New(accountRoleStorage, validate)
 	totpService := totpservice.New()
 
@@ -52,7 +54,7 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	authMiddleware := authmiddleware.New(accountProvider, accountService, sessionProvider, sessionService)
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
 	accountController := accountcontroller.New(accountService)
-	authController := authcontroller.New(accountProvider, authService, rbacService)
+	authController := authcontroller.New(accountProvider, authService, loginAttemptService, rbacService)
 	rbacController := rbaccontroller.New(rbacService)
 	totpController := totpcontroller.New(accountProvider, totpService)
 

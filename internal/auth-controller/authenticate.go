@@ -17,7 +17,7 @@ type AuthenticateOutput struct {
 
 func (ctrl *Controller) Authenticate(c *fiber.Ctx) error {
 	ip := c.IP()
-	if err := ctrl.AuthService.CheckLoginAttempt(c.UserContext(), ip); err != nil {
+	if err := ctrl.LoginAttemptService.CheckLoginAttempt(c.UserContext(), ip); err != nil {
 		return c.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 	var input AuthenticateInput
@@ -32,12 +32,12 @@ func (ctrl *Controller) Authenticate(c *fiber.Ctx) error {
 		},
 	)
 	if err != nil {
-		if err := ctrl.AuthService.FailLoginAttempt(c.UserContext(), ip); err != nil {
+		if err := ctrl.LoginAttemptService.FailLoginAttempt(c.UserContext(), ip); err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	if err := ctrl.AuthService.SuccessLoginAttempt(c.UserContext(), ip); err != nil {
+	if err := ctrl.LoginAttemptService.SuccessLoginAttempt(c.UserContext(), ip); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(AuthenticateOutput{

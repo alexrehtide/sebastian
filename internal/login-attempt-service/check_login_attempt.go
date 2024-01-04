@@ -1,4 +1,4 @@
-package authservice
+package loginattemptservice
 
 import (
 	"context"
