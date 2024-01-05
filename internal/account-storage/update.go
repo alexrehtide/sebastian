@@ -9,9 +9,14 @@ import (
 )
 
 func (s *Storage) Update(ctx context.Context, id uint, ops model.UpdateAccountOptions) error {
-	_, err := s.sq.
-		Update(TABLE_NAME).
-		Set(COLUMN_EMAIL, ops.Email).
+	sq := s.sq.Update(TABLE_NAME)
+	if len(ops.Email) != 0 {
+		sq.Set(COLUMN_EMAIL, ops.Email)
+	}
+	if len(ops.Username) != 0 {
+		sq.Set(COLUMN_USERNAME, ops.Username)
+	}
+	_, err := sq.
 		Where(squirrel.Eq{COLUMN_ID: id}).
 		ExecContext(ctx)
 	if err != nil {

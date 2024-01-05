@@ -13,5 +13,8 @@ func (s *Storage) buildWhere(ops model.ReadAccountOptions) squirrel.Eq {
 	if ops.Email != "" {
 		where[COLUMN_EMAIL] = ops.Email
 	}
+	if ops.Username != "" {
+		where[COLUMN_USERNAME] = ops.Username
+	}
 	return where
 }

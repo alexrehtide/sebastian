@@ -15,9 +15,12 @@ import (
 	loginattemptservice "github.com/alexrehtide/sebastian/internal/login-attempt-service"
 	loginattemptstorage "github.com/alexrehtide/sebastian/internal/login-attempt-storage"
 	logrushooker "github.com/alexrehtide/sebastian/internal/logrus-hooker"
+	oauth2controller "github.com/alexrehtide/sebastian/internal/oauth2-controller"
+	oauth2service "github.com/alexrehtide/sebastian/internal/oauth2-service"
 	rbaccontroller "github.com/alexrehtide/sebastian/internal/rbac-controller"
 	rbacmiddleware "github.com/alexrehtide/sebastian/internal/rbac-middleware"
 	rbacservice "github.com/alexrehtide/sebastian/internal/rbac-service"
+	remoteaccountstorage "github.com/alexrehtide/sebastian/internal/remote-account-storage"
 	sessionprovider "github.com/alexrehtide/sebastian/internal/session-provider"
 	sessionservice "github.com/alexrehtide/sebastian/internal/session-service"
 	sessionstorage "github.com/alexrehtide/sebastian/internal/session-storage"
@@ -35,6 +38,7 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 
 	accountRoleStorage := accountrolestorage.New(sqlxDB)
 	accountStorage := accountstorage.New(sqlxDB)
+	remoteAccountStorage := remoteaccountstorage.New(sqlxDB)
 	sessionStorage := sessionstorage.New(sqlxDB)
 	logStorage := logstorage.New(sqlxDB)
 
@@ -45,6 +49,7 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	sessionService := sessionservice.New(log, sessionStorage, validate)
 	authService := authservice.New(accountService, sessionService, validate)
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
+	oauth2Service := oauth2service.New(remoteAccountStorage, "random state") // TODO: change state
 	rbacService := rbacservice.New(accountRoleStorage, validate)
 	totpService := totpservice.New()
 
@@ -55,6 +60,7 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
 	accountController := accountcontroller.New(accountService)
 	authController := authcontroller.New(accountProvider, authService, loginAttemptService, rbacService)
+	oauth2Controller := oauth2controller.New(accountService, oauth2Service, sessionService)
 	rbacController := rbaccontroller.New(rbacService)
 	totpController := totpcontroller.New(accountProvider, totpService)
 
@@ -82,6 +88,12 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 		g.Post("/authorize", wp(model.AuthAuthorize), authController.Authorize)
 		g.Post("/logout", wp(model.AuthLogout), authController.Logout)
 		g.Post("/refresh", wp(model.AuthRefresh), authController.Refresh)
+	}
+
+	{
+		g := app.Group("/oauth2")
+		g.Get("/auth_code_url", oauth2Controller.AuthCodeURL)
+		g.Get("/authenticate", oauth2Controller.Authenticate)
 	}
 
 	{

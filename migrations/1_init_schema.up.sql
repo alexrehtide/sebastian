@@ -1,6 +1,7 @@
 CREATE TABLE account (
   id INT GENERATED ALWAYS AS IDENTITY,
   email varchar(256) NOT NULL,
+  username varchar(256) NOT NULL,
   password varchar(256) NOT NULL,
   totp_secret bytea,
   PRIMARY KEY(id)
@@ -56,4 +57,16 @@ CREATE TABLE login_attempt (
   count INT,
   last_failed TIMESTAMP WITH TIME ZONE,
   PRIMARY KEY(id)
+);
+
+CREATE TABLE remote_account (
+  id INT GENERATED ALWAYS AS IDENTITY,
+  account_id INT NOT NULL,
+  remote_id text NOT NULL,
+  remote_email varchar(256) NOT NULL,
+  platform varchar(64) NOT NULL,
+  PRIMARY KEY(id),
+  CONSTRAINT fk_remote_account_account_id
+    FOREIGN KEY(account_id) 
+	    REFERENCES account(id)
 );
