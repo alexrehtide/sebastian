@@ -2,7 +2,10 @@ package oauth2service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 
 	serviceerror "github.com/alexrehtide/sebastian/internal/service-error"
 	"github.com/alexrehtide/sebastian/model"
@@ -50,14 +53,53 @@ func (s *Service) Authorize(ctx context.Context, platform model.Platform, token 
 			return model.RemoteAccount{}, fmt.Errorf("oauth2service.Service.Authorize: %w", err)
 		}
 		remoteAcc.ID = id
+	} else {
+		row := rows[0]
+		remoteAcc.ID = row.ID
+		remoteAcc.AccountID = row.AccountID
 	}
 	return remoteAcc, nil
 }
 
 // TODO: implement AuthorizeXXX
 
+type GoogleUserInfo struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+}
+
 func AuthorizeGoogle(token string) (model.RemoteAccount, error) {
-	return model.RemoteAccount{}, nil
+	url := "https://www.googleapis.com/oauth2/v2/userinfo"
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	req.Header.Add("Authorization", "Bearer "+token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeGoogle: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeGoogle: %w", err)
+	}
+
+	var userInfo GoogleUserInfo
+	err = json.Unmarshal(body, &userInfo)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeGoogle: %w", err)
+	}
+
+	return model.RemoteAccount{
+		RemoteID:    userInfo.ID,
+		RemoteEmail: userInfo.Email,
+		Platform:    model.Google,
+	}, nil
 }
 
 func AuthorizeTwitch(token string) (model.RemoteAccount, error) {

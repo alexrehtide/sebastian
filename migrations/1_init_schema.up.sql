@@ -7,7 +7,7 @@ CREATE TABLE account (
   PRIMARY KEY(id)
 );
 
-INSERT INTO account(email,password,totp_secret) VALUES ('admin@admin.ru','f865b53623b121fd34ee5426c792e5c33af8c227',E'\\xAAAAAAAAAAAAAAAAAAAA');
+INSERT INTO account(email,username,password,totp_secret) VALUES ('admin@admin.ru','admin','f865b53623b121fd34ee5426c792e5c33af8c227',E'\\xAAAAAAAAAAAAAAAAAAAA');
 
 CREATE TABLE account_role (
   id INT GENERATED ALWAYS AS IDENTITY,
@@ -61,7 +61,7 @@ CREATE TABLE login_attempt (
 
 CREATE TABLE remote_account (
   id INT GENERATED ALWAYS AS IDENTITY,
-  account_id INT NOT NULL,
+  account_id INT NULL,
   remote_id text NOT NULL,
   remote_email varchar(256) NOT NULL,
   platform varchar(64) NOT NULL,

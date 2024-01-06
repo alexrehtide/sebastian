@@ -9,6 +9,7 @@ import (
 type RemoteAccountStorage interface {
 	Create(ctx context.Context, ops model.CreateRemoteAccountOptions) (id uint, err error)
 	Read(ctx context.Context, ops model.ReadRemoteAccountOptions, pgOps model.PaginationOptions) (rows []model.RemoteAccount, err error)
+	Update(ctx context.Context, id uint, ops model.UpdateRemoteAccountOptions) error
 }
 
 func New(remoteAccountStorage RemoteAccountStorage, state string) *Service {

@@ -38,6 +38,7 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 
 	accountRoleStorage := accountrolestorage.New(sqlxDB)
 	accountStorage := accountstorage.New(sqlxDB)
+	loginAttemptStorage := loginattemptstorage.New(sqlxDB)
 	remoteAccountStorage := remoteaccountstorage.New(sqlxDB)
 	sessionStorage := sessionstorage.New(sqlxDB)
 	logStorage := logstorage.New(sqlxDB)
@@ -45,7 +46,6 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	validate := validator.New()
 
 	accountService := accountservice.New(accountStorage, log, validate)
-	loginAttemptStorage := loginattemptstorage.New(sqlxDB)
 	sessionService := sessionservice.New(log, sessionStorage, validate)
 	authService := authservice.New(accountService, sessionService, validate)
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
@@ -60,7 +60,7 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
 	accountController := accountcontroller.New(accountService)
 	authController := authcontroller.New(accountProvider, authService, loginAttemptService, rbacService)
-	oauth2Controller := oauth2controller.New(accountService, oauth2Service, sessionService)
+	oauth2Controller := oauth2controller.New(accountService, oauth2Service, rbacService, sessionService)
 	rbacController := rbaccontroller.New(rbacService)
 	totpController := totpcontroller.New(accountProvider, totpService)
 
@@ -92,8 +92,8 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 
 	{
 		g := app.Group("/oauth2")
-		g.Get("/auth_code_url", oauth2Controller.AuthCodeURL)
-		g.Get("/authenticate", oauth2Controller.Authenticate)
+		g.Post("/auth_code_url", oauth2Controller.AuthCodeURL)
+		g.Post("/authenticate", oauth2Controller.Authenticate)
 	}
 
 	{

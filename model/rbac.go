@@ -50,21 +50,6 @@ const (
 	Admin Role = "admin"
 )
 
-var Permissions = []Permission{
-	AccountCreate,
-	AccountDelete,
-	AccountRead,
-	AccountUpdate,
-	AuthAuthorize,
-	AuthLogout,
-	AuthRefresh,
-	RBACAddAccountRole,
-	RBACReadAccountRoles,
-	RBACRemoveAccountRole,
-	TOTPGenerate,
-	TOTPValidate,
-}
-
 type Permission int
 
 const (

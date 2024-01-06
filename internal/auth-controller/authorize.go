@@ -6,9 +6,10 @@ import (
 )
 
 type AuthorizeOutput struct {
-	ID    uint         `json:"id"`
-	Email string       `json:"email"`
-	Roles []model.Role `json:"roles"`
+	ID       uint         `json:"id"`
+	Email    string       `json:"email"`
+	Username string       `json:"username"`
+	Roles    []model.Role `json:"roles"`
 }
 
 func (ctrl *Controller) Authorize(c *fiber.Ctx) error {
@@ -18,8 +19,9 @@ func (ctrl *Controller) Authorize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(AuthorizeOutput{
-		ID:    account.ID,
-		Email: account.Email,
-		Roles: roles,
+		ID:       account.ID,
+		Email:    account.Email,
+		Username: account.Username,
+		Roles:    roles,
 	})
 }

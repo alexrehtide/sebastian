@@ -1,6 +1,8 @@
 package oauth2controller
 
 import (
+	"log"
+
 	"github.com/alexrehtide/sebastian/model"
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,6 +24,8 @@ func (ctrl *Controller) Authenticate(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
+	log.Printf("%v", input)
+
 	token, err := ctrl.Oauth2Service.Exchange(c.UserContext(), input.Platform, input.Code)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
@@ -38,7 +42,17 @@ func (ctrl *Controller) Authenticate(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
 
+		err = ctrl.RBACService.AddAccountRole(c.UserContext(), accId, model.User)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+
 		remoteAcc.AccountID = accId
+	}
+
+	err = ctrl.Oauth2Service.UpdateAccountID(c.UserContext(), remoteAcc.ID, remoteAcc.AccountID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	sessionID, err := ctrl.SessionService.CreateWithAccountID(c.UserContext(), remoteAcc.AccountID)

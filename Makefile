@@ -6,5 +6,5 @@ back:
 front:
 	cd frontend && npm run dev
 
-compose-local:
+db:
 	docker compose -f docker-compose-local.yml up
