@@ -1,7 +1,8 @@
-package httpserver
+package application
 
 import (
-	"database/sql"
+	"context"
+	"fmt"
 
 	accountcontroller "github.com/alexrehtide/sebastian/internal/account-controller"
 	accountprovider "github.com/alexrehtide/sebastian/internal/account-provider"
@@ -34,15 +35,37 @@ import (
 	totpcontroller "github.com/alexrehtide/sebastian/internal/totp-controller"
 	totpservice "github.com/alexrehtide/sebastian/internal/totp-service"
 	"github.com/alexrehtide/sebastian/model"
+	"github.com/alexrehtide/sebastian/pkg/postgres"
 	"github.com/alexrehtide/sebastian/pkg/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 )
 
-func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
-	sqlxDB := sqlx.NewDb(sqlDB, "postgres")
+func (a *Application) Start(ctx context.Context) error {
+	err := a.ConfigService.Load()
 
+	log := logrus.New()
+	log.SetFormatter(new(logrus.TextFormatter))
+
+	if err != nil {
+		return fmt.Errorf("httpserver.Server.Listen: %w", err)
+	}
+
+	sqlDB, err := postgres.New(postgres.PostgresOptions{
+		User:     a.ConfigService.PostgresUser(),
+		Password: a.ConfigService.PostgresPassword(),
+		Host:     a.ConfigService.PostgresHost(),
+		Port:     a.ConfigService.PostgresPort(),
+		DBName:   a.ConfigService.PostgresDBName(),
+	})
+	if err != nil {
+		return fmt.Errorf("httpserver.Server.Listen: %w", err)
+	}
+	defer sqlDB.Close()
+
+	sqlxDB := sqlx.NewDb(sqlDB, "postgres")
 	accountRoleStorage := accountrolestorage.New(sqlxDB)
 	accountStorage := accountstorage.New(sqlxDB)
 	loginAttemptStorage := loginattemptstorage.New(sqlxDB)
@@ -135,19 +158,14 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 		g.Post("/validate", wp(model.TOTPValidate), totpController.Validate)
 	}
 
-	return &Server{
-		app: app,
-	}
-}
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		return app.Listen(a.ConfigService.HTTPServerAddr())
+	})
+	g.Go(func() error {
+		<-gCtx.Done()
+		return app.Shutdown()
+	})
 
-type Server struct {
-	app *fiber.App
-}
-
-func (s *Server) Listen(addr string) error {
-	return s.app.Listen(addr)
-}
-
-func (s *Server) Shutdown() error {
-	return s.app.Shutdown()
+	return g.Wait()
 }

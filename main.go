@@ -2,76 +2,26 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
-	httpserver "github.com/alexrehtide/sebastian/internal/http-server"
-	"github.com/alexrehtide/sebastian/migrations"
-	"github.com/alexrehtide/sebastian/platform/config"
-	sqlconnection "github.com/alexrehtide/sebastian/platform/database/sql-connection"
-	"github.com/alexrehtide/sebastian/platform/migrator"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/sync/errgroup"
+	"github.com/alexrehtide/sebastian/internal/application"
+	configservice "github.com/alexrehtide/sebastian/internal/config-service"
 )
 
 func main() {
-	mainCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	log := logrus.New()
-	log.SetFormatter(new(logrus.TextFormatter))
+	app := application.New(configservice.New())
 
-	conf, err := config.New()
-	if err != nil {
-		log.Fatal(err)
+	if err := app.MigrateDB(); err != nil {
+		fmt.Printf("error with migration: %s\r\n", err)
 	}
 
-	sqlDB, err := sqlconnection.New(sqlconnection.PostgresOptions{
-		User:     conf.PostgresUser,
-		Password: conf.PostgresPassword,
-		Host:     conf.PostgresHost,
-		Port:     conf.PostgresPort,
-		DBName:   conf.PostgresName,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer sqlDB.Close()
-
-	if err := sqlDB.Ping(); err != nil {
-		log.Fatalf("Connection with db failed: %v", err)
-	}
-
-	m, err := migrator.New(
-		migrator.MigratorOptions{
-			DBConn:          sqlDB,
-			MigrationsTable: "migrations_table",
-		},
-		migrations.FS,
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := m.Up(); err != nil && err.Error() != "no change" {
-		log.Fatal(err)
-	}
-
-	server := httpserver.New(sqlDB, log)
-
-	g, gCtx := errgroup.WithContext(mainCtx)
-	g.Go(func() error {
-		return server.Listen(":3000")
-	})
-	g.Go(func() error {
-		<-gCtx.Done()
-		return server.Shutdown()
-	})
-
-	log.WithField("port", 3000).Infof("Application started")
-
-	if err := g.Wait(); err != nil {
-		log.Errorf("exit reason: %s \n", err)
+	if err := app.Start(ctx); err != nil {
+		fmt.Printf("exit reason: %s \r\n", err)
 	}
 }
