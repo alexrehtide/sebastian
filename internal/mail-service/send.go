@@ -8,7 +8,7 @@ import (
 
 func (s *Service) Send(to string, subject string, contentType string, content string) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", s.From)
+	m.SetHeader("From", fmt.Sprintf("Taris.fun <%s>", s.ConfigService.SMTPEmail()))
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", subject)
 	m.SetBody(contentType, content)

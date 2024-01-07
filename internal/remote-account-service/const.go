@@ -14,8 +14,6 @@ const (
 	BaseCallbackURL = "http://localhost:9000/auth/code"
 )
 
-// TODO: заполнить ID и Secret
-
 var googleOauth2Config = &oauth2.Config{
 	RedirectURL:  fmt.Sprintf("%s/%s", BaseCallbackURL, model.Google),
 	ClientID:     "237567719849-o5f79usjn8n49kjbk4m9fv4kig04s0fl.apps.googleusercontent.com",

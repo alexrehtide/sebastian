@@ -12,4 +12,9 @@ type Service struct {
 	postgresPassword string
 	postgresHost     string
 	postgresPort     int
+
+	smtpHost     string
+	smtpPort     int
+	smtpEmail    string
+	smtpPassword string
 }

@@ -81,7 +81,7 @@ func (a *Application) Start(ctx context.Context) error {
 	sessionService := sessionservice.New(log, sessionStorage, validate)
 	authService := authservice.New(accountService, sessionService, validate)
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
-	mailService := mailservice.New("admin@taris.fun", "32213345Qq") // TODO: secure credentials
+	mailService := mailservice.New(a.ConfigService)
 	passwordResettingService := passwordresettingservice.New(accountService, passwordResettingStorage)
 	rbacService := rbacservice.New(accountRoleStorage, validate)
 	registrationFormService := registrationservice.New(accountService, rbacService, registrationFormStorage)

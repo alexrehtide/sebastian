@@ -2,21 +2,32 @@ package mailservice
 
 import (
 	"crypto/tls"
-	"fmt"
 
 	gomail "gopkg.in/mail.v2"
 )
 
-func New(email string, password string) *Service {
-	d := gomail.NewDialer("mail.taris.fun", 465, email, password)
+type ConfigService interface {
+	SMTPHost() string
+	SMTPPort() int
+	SMTPEmail() string
+	SMTPPassword() string
+}
+
+func New(configService ConfigService) *Service {
+	d := gomail.NewDialer(
+		configService.SMTPHost(),
+		configService.SMTPPort(),
+		configService.SMTPEmail(),
+		configService.SMTPPassword(),
+	)
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	return &Service{
-		From:   fmt.Sprintf("Taris.fun <%s>", email),
-		Dialer: d,
+		ConfigService: configService,
+		Dialer:        d,
 	}
 }
 
 type Service struct {
-	From   string
-	Dialer *gomail.Dialer
+	ConfigService ConfigService
+	Dialer        *gomail.Dialer
 }

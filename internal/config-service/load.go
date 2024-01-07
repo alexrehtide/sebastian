@@ -4,17 +4,25 @@ import (
 	"fmt"
 )
 
-func (s *Service) Load() error {
+func (s *Service) Load() (err error) {
+	s.httpServerAddr = getEnv("HTTP_SERVER_ADDR", ":3000")
+
 	s.postgresUser = getEnv("POSTGRES_USER", "postgres")
 	s.postgresPassword = getEnv("POSTGRES_PASSWORD", "3769")
 	s.postgresDBName = getEnv("POSTGRES_NAME", "postgres")
 	s.postgresHost = getEnv("POSTGRES_HOST", "postgres")
-	postgresPort, err := getIntEnv("POSTGRES_PORT", 5432)
+	s.postgresPort, err = getIntEnv("POSTGRES_PORT", 5432)
 	if err != nil {
 		return fmt.Errorf("configservice.Service.Load: %w", err)
 	}
-	s.postgresPort = postgresPort
 
-	s.httpServerAddr = getEnv("HTTP_SERVER_ADDR", ":3000")
+	s.smtpHost = getEnv("SMTP_HOST", "mail.taris.fun")
+	s.smtpPort, err = getIntEnv("SMTP_PORT", 465)
+	if err != nil {
+		return fmt.Errorf("configservice.Service.Load: %w", err)
+	}
+	s.smtpEmail = getEnv("SMTP_EMAIL", "admin@taris.fun")
+	s.smtpPassword = getEnv("SMTP_PASSWORD", "32213345Qq")
+
 	return nil
 }
