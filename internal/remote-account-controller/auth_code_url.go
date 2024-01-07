@@ -19,7 +19,7 @@ func (ctrl *Controller) AuthCodeURL(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	url, err := ctrl.Oauth2Service.AuthCodeURL(input.Platform)
+	url, err := ctrl.RemoteAccountService.AuthCodeURL(input.Platform)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

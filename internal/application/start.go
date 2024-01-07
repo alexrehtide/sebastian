@@ -12,6 +12,8 @@ import (
 	authcontroller "github.com/alexrehtide/sebastian/internal/auth-controller"
 	authmiddleware "github.com/alexrehtide/sebastian/internal/auth-middleware"
 	authservice "github.com/alexrehtide/sebastian/internal/auth-service"
+	eventmiddleware "github.com/alexrehtide/sebastian/internal/event-middleware"
+	eventservice "github.com/alexrehtide/sebastian/internal/event-service"
 	logstorage "github.com/alexrehtide/sebastian/internal/log-storage"
 	loginattemptservice "github.com/alexrehtide/sebastian/internal/login-attempt-service"
 	loginattemptstorage "github.com/alexrehtide/sebastian/internal/login-attempt-storage"
@@ -49,8 +51,11 @@ func (a *Application) Start(ctx context.Context) error {
 		return fmt.Errorf("httpserver.Server.Listen: %w", err)
 	}
 
-	log := logrus.New()
-	log.SetFormatter(new(logrus.TextFormatter))
+	logger := logrus.New()
+	logger.SetFormatter(new(logrus.TextFormatter))
+	if a.ConfigService.Debug() {
+		logger.SetLevel(logrus.DebugLevel)
+	}
 
 	if err != nil {
 		return fmt.Errorf("httpserver.Server.Listen: %w", err)
@@ -80,8 +85,9 @@ func (a *Application) Start(ctx context.Context) error {
 
 	validate := validator.New()
 
-	accountService := accountservice.New(accountStorage, log, validate)
-	sessionService := sessionservice.New(log, sessionStorage, validate)
+	eventService := eventservice.New(logger)
+	accountService := accountservice.New(accountStorage, logger, validate)
+	sessionService := sessionservice.New(logger, sessionStorage, validate)
 	authService := authservice.New(accountService, sessionService, validate)
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
 	mailService := mailservice.New(a.ConfigService)
@@ -95,19 +101,23 @@ func (a *Application) Start(ctx context.Context) error {
 	sessionProvider := sessionprovider.New()
 
 	authMiddleware := authmiddleware.New(accountProvider, accountService, sessionProvider, sessionService)
+	eventMiddleware := eventmiddleware.New(eventService)
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
 	accountController := accountcontroller.New(accountService)
 	authController := authcontroller.New(accountProvider, authService, loginAttemptService, rbacService)
 	passwordResettingController := passwordresettingcontroller.New(mailService, passwordResettingService)
 	rbacController := rbaccontroller.New(rbacService)
 	registrationController := registrationcontroller.New(mailService, registrationFormService, sessionService)
-	remoteAccountController := remoteaccountcontroller.New(accountService, remoteAccountService, rbacService, sessionService)
+	remoteAccountController := remoteaccountcontroller.New(accountService, rbacService, remoteAccountService, sessionService)
 	totpController := totpcontroller.New(accountProvider, totpService)
 
-	log.Hooks.Add(logrushooker.New(logStorage, sessionProvider))
+	logger.Hooks.Add(logrushooker.New(logStorage, sessionProvider))
 
 	app := fiber.New()
 	app.Use(authMiddleware.Authorize)
+	if a.ConfigService.Debug() {
+		app.Use(eventMiddleware.Handle)
+	}
 
 	wp := func(permission model.Permission) fiber.Handler {
 		return rbacMiddleware.WithPermission(permission)

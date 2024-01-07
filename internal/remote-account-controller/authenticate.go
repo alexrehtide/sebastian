@@ -1,8 +1,6 @@
 package remoteaccountcontroller
 
 import (
-	"log"
-
 	"github.com/alexrehtide/sebastian/model"
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,14 +22,12 @@ func (ctrl *Controller) Authenticate(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	log.Printf("%v", input)
-
-	token, err := ctrl.Oauth2Service.Exchange(c.UserContext(), input.Platform, input.Code)
+	token, err := ctrl.RemoteAccountService.Exchange(c.UserContext(), input.Platform, input.Code)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	remoteAcc, err := ctrl.Oauth2Service.Authorize(c.UserContext(), input.Platform, token)
+	remoteAcc, err := ctrl.RemoteAccountService.Authorize(c.UserContext(), input.Platform, token)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
@@ -50,7 +46,7 @@ func (ctrl *Controller) Authenticate(c *fiber.Ctx) error {
 		remoteAcc.AccountID = accId
 	}
 
-	err = ctrl.Oauth2Service.UpdateAccountID(c.UserContext(), remoteAcc.ID, remoteAcc.AccountID)
+	err = ctrl.RemoteAccountService.UpdateAccountID(c.UserContext(), remoteAcc.ID, remoteAcc.AccountID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

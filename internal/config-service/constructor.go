@@ -5,6 +5,7 @@ func New() *Service {
 }
 
 type Service struct {
+	debug          bool
 	httpServerAddr string
 
 	postgresDBName   string

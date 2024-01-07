@@ -9,7 +9,6 @@ import (
 )
 
 func (s *Storage) Update(ctx context.Context, id uint, ops model.UpdateAccountOptions) error {
-	fmt.Printf("2) %v %+v", id, ops)
 	sq := s.sq.Update(TABLE_NAME)
 	if ops.Email != "" {
 		sq = sq.Set(COLUMN_EMAIL, ops.Email)

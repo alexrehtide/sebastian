@@ -6,6 +6,7 @@ import (
 
 type ConfigService interface {
 	Load() error
+	Debug() bool
 	HTTPServerAddr() string
 	PostgresDBName() string
 	PostgresUser() string

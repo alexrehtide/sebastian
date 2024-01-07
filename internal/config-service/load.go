@@ -11,7 +11,12 @@ func (s *Service) Load() (err error) {
 	if err != nil {
 		return fmt.Errorf("configservice.Service.Load: %w", err)
 	}
+
 	s.httpServerAddr = getEnv("HTTP_SERVER_ADDR", ":3000")
+	s.debug, err = getBoolEnv("DEBUG", false)
+	if err != nil {
+		return fmt.Errorf("configservice.Service.Load: %w", err)
+	}
 
 	s.postgresUser = getEnv("POSTGRES_USER", "postgres")
 	s.postgresPassword = getEnv("POSTGRES_PASSWORD", "3769")
