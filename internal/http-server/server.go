@@ -16,8 +16,6 @@ import (
 	loginattemptstorage "github.com/alexrehtide/sebastian/internal/login-attempt-storage"
 	logrushooker "github.com/alexrehtide/sebastian/internal/logrus-hooker"
 	mailservice "github.com/alexrehtide/sebastian/internal/mail-service"
-	oauth2controller "github.com/alexrehtide/sebastian/internal/oauth2-controller"
-	oauth2service "github.com/alexrehtide/sebastian/internal/oauth2-service"
 	passwordresettingcontroller "github.com/alexrehtide/sebastian/internal/password-resetting-controller"
 	passwordresettingservice "github.com/alexrehtide/sebastian/internal/password-resetting-service"
 	passwordresettingstorage "github.com/alexrehtide/sebastian/internal/password-resetting-storage"
@@ -27,6 +25,8 @@ import (
 	registrationcontroller "github.com/alexrehtide/sebastian/internal/registration-controller"
 	registrationservice "github.com/alexrehtide/sebastian/internal/registration-service"
 	registrationstorage "github.com/alexrehtide/sebastian/internal/registration-storage"
+	remoteaccountcontroller "github.com/alexrehtide/sebastian/internal/remote-account-controller"
+	remoteaccountservice "github.com/alexrehtide/sebastian/internal/remote-account-service"
 	remoteaccountstorage "github.com/alexrehtide/sebastian/internal/remote-account-storage"
 	sessionprovider "github.com/alexrehtide/sebastian/internal/session-provider"
 	sessionservice "github.com/alexrehtide/sebastian/internal/session-service"
@@ -58,11 +58,11 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	sessionService := sessionservice.New(log, sessionStorage, validate)
 	authService := authservice.New(accountService, sessionService, validate)
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
-	mailService := mailservice.New("admin@taris.fun", "32213345Qq")          // TODO: secure credentials
-	oauth2Service := oauth2service.New(remoteAccountStorage, "random state") // TODO: change state
+	mailService := mailservice.New("admin@taris.fun", "32213345Qq") // TODO: secure credentials
 	passwordResettingService := passwordresettingservice.New(accountService, passwordResettingStorage)
 	rbacService := rbacservice.New(accountRoleStorage, validate)
 	registrationFormService := registrationservice.New(accountService, rbacService, registrationFormStorage)
+	remoteAccountService := remoteaccountservice.New(remoteAccountStorage, "random state") // TODO: change state
 	totpService := totpservice.New()
 
 	accountProvider := accountprovider.New()
@@ -72,10 +72,10 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
 	accountController := accountcontroller.New(accountService)
 	authController := authcontroller.New(accountProvider, authService, loginAttemptService, rbacService)
-	oauth2Controller := oauth2controller.New(accountService, oauth2Service, rbacService, sessionService)
 	passwordResettingController := passwordresettingcontroller.New(mailService, passwordResettingService)
 	rbacController := rbaccontroller.New(rbacService)
 	registrationController := registrationcontroller.New(mailService, registrationFormService, sessionService)
+	remoteAccountController := remoteaccountcontroller.New(accountService, remoteAccountService, rbacService, sessionService)
 	totpController := totpcontroller.New(accountProvider, totpService)
 
 	log.Hooks.Add(logrushooker.New(logStorage, sessionProvider))
@@ -105,12 +105,6 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	}
 
 	{
-		g := app.Group("/oauth2")
-		g.Post("/auth_code_url", oauth2Controller.AuthCodeURL)
-		g.Post("/authenticate", oauth2Controller.Authenticate)
-	}
-
-	{
 		g := app.Group("/password_resetting")
 		g.Post("/begin", passwordResettingController.Begin)
 		g.Post("/end", passwordResettingController.End)
@@ -127,6 +121,12 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 		g := app.Group("/registration")
 		g.Post("/begin", registrationController.Begin)
 		g.Post("/end", registrationController.End)
+	}
+
+	{
+		g := app.Group("/remote_account")
+		g.Post("/auth_code_url", remoteAccountController.AuthCodeURL)
+		g.Post("/authenticate", remoteAccountController.Authenticate)
 	}
 
 	{

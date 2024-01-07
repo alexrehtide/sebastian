@@ -2,8 +2,8 @@ import axios from "axios";
 
 type Api = AuthAuthorize &
   AuthAuthenticate &
-  Oauth2AuthCodeURL &
-  Oauth2Authenticate &
+  RemoteAccountAuthCodeURL &
+  RemoteAccountAuthenticate &
   PasswordResettingBegin &
   PasswordResettingEnd &
   RegistrationBegin &
@@ -20,20 +20,6 @@ type AuthAuthenticate = (
 type AuthAuthenticateInput = { email: string; password: string };
 type AuthAuthenticateOutput = { accessToken: string; refreshToken: string };
 
-type Oauth2AuthCodeURL = (
-  path: "/api/oauth2/auth_code_url",
-  body: Oauth2AuthCodeURLInput
-) => Promise<Oauth2AuthCodeURLOutput>;
-type Oauth2AuthCodeURLInput = { platform: string };
-type Oauth2AuthCodeURLOutput = { url: string };
-
-type Oauth2Authenticate = (
-  path: "/api/oauth2/authenticate",
-  body: Oauth2AuthenticateInput
-) => Promise<Oauth2AuthenticateOutput>;
-type Oauth2AuthenticateInput = { platform: string; code: string };
-type Oauth2AuthenticateOutput = { accessToken: string; refreshToken: string };
-
 type PasswordResettingBegin = (
   path: "/api/password_resetting/begin",
   body: PasswordResettingBeginInput
@@ -49,6 +35,20 @@ type RegistrationBeginInput = { email: string; password: string; username: strin
 type RegistrationEnd = (path: "/api/registration/end", body: RegistrationEndInput) => Promise<RegistrationEndOutput>;
 type RegistrationEndInput = { verificationCode: string };
 type RegistrationEndOutput = { accessToken: string; refreshToken: string };
+
+type RemoteAccountAuthCodeURL = (
+  path: "/api/remote_account/auth_code_url",
+  body: RemoteAccountAuthCodeURLInput
+) => Promise<RemoteAccountAuthCodeURLOutput>;
+type RemoteAccountAuthCodeURLInput = { platform: string };
+type RemoteAccountAuthCodeURLOutput = { url: string };
+
+type RemoteAccountAuthenticate = (
+  path: "/api/remote_account/authenticate",
+  body: RemoteAccountAuthenticateInput
+) => Promise<RemoteAccountAuthenticateOutput>;
+type RemoteAccountAuthenticateInput = { platform: string; code: string };
+type RemoteAccountAuthenticateOutput = { accessToken: string; refreshToken: string };
 
 type TOTPGenerate = (path: "/api/totp/generate") => Promise<TOTPGenerateOutput>;
 type TOTPGenerateOutput = { url: string };

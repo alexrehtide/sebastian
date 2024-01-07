@@ -1,4 +1,4 @@
-package oauth2service
+package remoteaccountservice
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 
 func (s *Service) UpdateAccountID(ctx context.Context, id uint, accountID uint) error {
 	if err := s.RemoteAccountStorage.Update(ctx, id, model.UpdateRemoteAccountOptions{AccountID: accountID}); err != nil {
-		return fmt.Errorf("oauth2service.Service.UpdateAccountID")
+		return fmt.Errorf("remoteaccountservice.Service.UpdateAccountID")
 	}
 	return nil
 }

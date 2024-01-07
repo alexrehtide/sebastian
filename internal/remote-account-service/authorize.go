@@ -1,4 +1,4 @@
-package oauth2service
+package remoteaccountservice
 
 import (
 	"context"
@@ -26,7 +26,7 @@ func (s *Service) Authorize(ctx context.Context, platform model.Platform, token 
 		return model.RemoteAccount{}, serviceerror.ErrPlatformNotFound
 	}
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.Service.Authorize: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.Service.Authorize: %w", err)
 	}
 	rows, err := s.RemoteAccountStorage.Read(
 		ctx,
@@ -39,7 +39,7 @@ func (s *Service) Authorize(ctx context.Context, platform model.Platform, token 
 		},
 	)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.Service.Authorize: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.Service.Authorize: %w", err)
 	}
 	if len(rows) == 0 {
 		id, err := s.RemoteAccountStorage.Create(
@@ -51,7 +51,7 @@ func (s *Service) Authorize(ctx context.Context, platform model.Platform, token 
 			},
 		)
 		if err != nil {
-			return model.RemoteAccount{}, fmt.Errorf("oauth2service.Service.Authorize: %w", err)
+			return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.Service.Authorize: %w", err)
 		}
 		remoteAcc.ID = id
 	} else {
@@ -79,19 +79,19 @@ func AuthorizeGoogle(token string) (model.RemoteAccount, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeGoogle: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeGoogle: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeGoogle: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeGoogle: %w", err)
 	}
 
 	var userInfo GoogleUserInfo
 	err = json.Unmarshal(body, &userInfo)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeGoogle: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeGoogle: %w", err)
 	}
 
 	return model.RemoteAccount{
@@ -112,30 +112,30 @@ func AuthorizeTwitch(config *oauth2.Config, token string) (model.RemoteAccount, 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix/users", nil)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeTwitch: %w", err)
 	}
 	req.Header.Add("Client-ID", config.ClientID)
 	req.Header.Add("Authorization", "Bearer "+token)
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeTwitch: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeTwitch: %w", err)
 	}
 
 	var userInfo TwitchUserInfo
 	err = json.Unmarshal(body, &userInfo)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeTwitch: %w", err)
 	}
 
 	if len(userInfo.Data) == 0 {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", serviceerror.ErrRecordNotFound)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeTwitch: %w", serviceerror.ErrRecordNotFound)
 	}
 
 	return model.RemoteAccount{
@@ -154,25 +154,25 @@ func AuthorizeYandex(token string) (model.RemoteAccount, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://login.yandex.ru/info", nil)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeYandex: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeYandex: %w", err)
 	}
 	req.Header.Add("Authorization", "OAuth "+token)
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeYandex: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeYandex: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeYandex: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeYandex: %w", err)
 	}
 
 	var userInfo YandexUserInfo
 	err = json.Unmarshal(body, &userInfo)
 	if err != nil {
-		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeYandex: %w", err)
+		return model.RemoteAccount{}, fmt.Errorf("remoteaccountservice.AuthorizeYandex: %w", err)
 	}
 
 	return model.RemoteAccount{

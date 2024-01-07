@@ -1,4 +1,4 @@
-package oauth2service
+package remoteaccountservice
 
 import (
 	"fmt"
@@ -17,5 +17,5 @@ func (s *Service) getConfigByPlatform(platform model.Platform) (*oauth2.Config, 
 	case model.Twitch:
 		return twitchOauth2Config, nil
 	}
-	return nil, fmt.Errorf("oauth2service.Service.getConfigByPlatform: %w", serviceerror.ErrPlatformNotFound)
+	return nil, fmt.Errorf("remoteaccountservice.Service.getConfigByPlatform: %w", serviceerror.ErrPlatformNotFound)
 }

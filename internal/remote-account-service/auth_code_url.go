@@ -1,4 +1,4 @@
-package oauth2service
+package remoteaccountservice
 
 import (
 	"fmt"

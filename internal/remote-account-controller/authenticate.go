@@ -1,4 +1,4 @@
-package oauth2controller
+package remoteaccountcontroller
 
 import (
 	"log"

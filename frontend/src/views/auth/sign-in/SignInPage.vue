@@ -40,7 +40,7 @@ const email = ref("");
 const password = ref("");
 
 const signInWith = (platform: string) => {
-  return api("/api/oauth2/auth_code_url", { platform }).then(({ url }) => {
+  return api("/api/remote_account/auth_code_url", { platform }).then(({ url }) => {
     window.location.href = url;
   });
 };
@@ -58,7 +58,7 @@ const onAuthenticate = (data: { accessToken: string; refreshToken: string }) => 
 
 onBeforeMount(() => {
   if (props.exchange) {
-    return api("/api/oauth2/authenticate", props.exchange)
+    return api("/api/remote_account/authenticate", props.exchange)
       .then(onAuthenticate)
       .then(() => router.replace("/"));
   }
