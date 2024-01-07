@@ -2,15 +2,21 @@ package configservice
 
 import (
 	"fmt"
+
+	"github.com/joho/godotenv"
 )
 
 func (s *Service) Load() (err error) {
+	err = godotenv.Load()
+	if err != nil {
+		return fmt.Errorf("configservice.Service.Load: %w", err)
+	}
 	s.httpServerAddr = getEnv("HTTP_SERVER_ADDR", ":3000")
 
 	s.postgresUser = getEnv("POSTGRES_USER", "postgres")
 	s.postgresPassword = getEnv("POSTGRES_PASSWORD", "3769")
 	s.postgresDBName = getEnv("POSTGRES_NAME", "postgres")
-	s.postgresHost = getEnv("POSTGRES_HOST", "postgres")
+	s.postgresHost = getEnv("POSTGRES_HOST", "localhost")
 	s.postgresPort, err = getIntEnv("POSTGRES_PORT", 5432)
 	if err != nil {
 		return fmt.Errorf("configservice.Service.Load: %w", err)

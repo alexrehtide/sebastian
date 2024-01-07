@@ -17,11 +17,16 @@ import (
 // }
 
 func getIntEnv(key string, defaultVal int) (int, error) {
-	value := getEnv(key, "0")
+	value := getEnv(key, "")
+	if value == "" {
+		return defaultVal, nil
+	}
+
 	intValue, err := strconv.Atoi(value)
 	if err != nil {
 		return 0, err
 	}
+
 	return intValue, nil
 }
 

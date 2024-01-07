@@ -2,7 +2,6 @@ package application
 
 import (
 	configservice "github.com/alexrehtide/sebastian/internal/config-service"
-	"github.com/gofiber/fiber/v2"
 )
 
 type ConfigService interface {
@@ -27,6 +26,4 @@ func New(configService *configservice.Service) *Application {
 
 type Application struct {
 	ConfigService ConfigService
-
-	App *fiber.App
 }

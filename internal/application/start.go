@@ -45,6 +45,9 @@ import (
 
 func (a *Application) Start(ctx context.Context) error {
 	err := a.ConfigService.Load()
+	if err != nil {
+		return fmt.Errorf("httpserver.Server.Listen: %w", err)
+	}
 
 	log := logrus.New()
 	log.SetFormatter(new(logrus.TextFormatter))

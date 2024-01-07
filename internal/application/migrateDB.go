@@ -9,6 +9,11 @@ import (
 )
 
 func (a *Application) MigrateDB() error {
+	err := a.ConfigService.Load()
+	if err != nil {
+		return fmt.Errorf("httpserver.Server.MigrateDB: %w", err)
+	}
+
 	sqlDB, err := postgres.New(postgres.PostgresOptions{
 		User:     a.ConfigService.PostgresUser(),
 		Password: a.ConfigService.PostgresPassword(),
