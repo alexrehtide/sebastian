@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	serviceerror "github.com/alexrehtide/sebastian/internal/service-error"
 	"github.com/alexrehtide/sebastian/model"
+	"github.com/alexrehtide/sebastian/pkg/password"
 )
 
 func (s *Service) Authenticate(ctx context.Context, ops model.AuthenticateOptions) (model.Tokens, error) {
@@ -15,8 +17,8 @@ func (s *Service) Authenticate(ctx context.Context, ops model.AuthenticateOption
 	if err != nil {
 		return model.Tokens{}, fmt.Errorf("authservice.AuthService.Authenticate: %w", err)
 	}
-	if err := s.AccountService.CheckPassword(acc, ops.Password); err != nil {
-		return model.Tokens{}, fmt.Errorf("authservice.AuthService.Authenticate: %w", err)
+	if acc.Password != password.HashPassword(ops.Password) {
+		return model.Tokens{}, fmt.Errorf("authservice.AuthService.Authenticate: %w", serviceerror.ErrInvalidPassword)
 	}
 	sessionID, err := s.SessionService.CreateWithAccountID(ctx, acc.ID)
 	if err != nil {

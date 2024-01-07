@@ -10,11 +10,15 @@ import (
 )
 
 func (s *Storage) Update(ctx context.Context, id uint, ops model.UpdateSessionOptions) error {
-	_, err := s.sq.
-		Update(TABLE_NAME).
-		Set(COLUMN_ACCESS_TOKEN, ops.AccessToken).
-		Set(COLUMN_REFRESH_TOKEN, ops.RefreshToken).
-		Set(COLUMN_UPDATED_AT, time.Now()).
+	sq := s.sq.
+		Update(TABLE_NAME)
+	if ops.AccessToken != "" {
+		sq.Set(COLUMN_ACCESS_TOKEN, ops.AccessToken)
+	}
+	if ops.RefreshToken != "" {
+		sq.Set(COLUMN_REFRESH_TOKEN, ops.RefreshToken)
+	}
+	_, err := sq.Set(COLUMN_UPDATED_AT, time.Now()).
 		Where(squirrel.Eq{COLUMN_ID: id}).
 		ExecContext(ctx)
 	if err != nil {

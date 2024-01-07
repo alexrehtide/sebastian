@@ -8,7 +8,6 @@ import (
 )
 
 type AccountService interface {
-	CheckPassword(account model.Account, password string) error
 	ReadByEmail(ctx context.Context, email string) (model.Account, error)
 	ReadByID(ctx context.Context, id uint) (model.Account, error)
 }

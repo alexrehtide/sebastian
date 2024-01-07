@@ -19,8 +19,8 @@
 
       <div class="s-sign-in__platforms">
         <q-btn icon="fa-brands fa-google" round flat @click="signInWith('google')"></q-btn>
-        <q-btn icon="fa-brands fa-yandex-international" round flat></q-btn>
-        <q-btn icon="fa-brands fa-twitch" round flat></q-btn>
+        <q-btn icon="fa-brands fa-yandex-international" round flat @click="signInWith('yandex')"></q-btn>
+        <q-btn icon="fa-brands fa-twitch" round flat @click="signInWith('twitch')"></q-btn>
       </div>
     </auth-card>
   </q-page>

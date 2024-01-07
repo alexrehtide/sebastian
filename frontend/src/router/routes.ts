@@ -34,6 +34,9 @@ const routes: RouteRecordRaw[] = [
       {
         path: "sign_up",
         component: () => import("views/auth/sign-up/SignUpPage.vue"),
+        props: (to) => ({
+          verificationCode: to.query["verification_code"],
+        }),
       },
       {
         path: "forgot_password",

@@ -9,6 +9,7 @@ import (
 
 	serviceerror "github.com/alexrehtide/sebastian/internal/service-error"
 	"github.com/alexrehtide/sebastian/model"
+	"golang.org/x/oauth2"
 )
 
 func (s *Service) Authorize(ctx context.Context, platform model.Platform, token string) (model.RemoteAccount, error) {
@@ -18,7 +19,7 @@ func (s *Service) Authorize(ctx context.Context, platform model.Platform, token 
 	case model.Google:
 		remoteAcc, err = AuthorizeGoogle(token)
 	case model.Twitch:
-		remoteAcc, err = AuthorizeTwitch(token)
+		remoteAcc, err = AuthorizeTwitch(twitchOauth2Config, token)
 	case model.Yandex:
 		remoteAcc, err = AuthorizeYandex(token)
 	default:
@@ -61,8 +62,6 @@ func (s *Service) Authorize(ctx context.Context, platform model.Platform, token 
 	return remoteAcc, nil
 }
 
-// TODO: implement AuthorizeXXX
-
 type GoogleUserInfo struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
@@ -102,10 +101,85 @@ func AuthorizeGoogle(token string) (model.RemoteAccount, error) {
 	}, nil
 }
 
-func AuthorizeTwitch(token string) (model.RemoteAccount, error) {
-	return model.RemoteAccount{}, nil
+type TwitchUserInfo struct {
+	Data []struct {
+		ID    string `json:"id"`
+		Email string `json:"email"`
+	} `json:"data"`
+}
+
+func AuthorizeTwitch(config *oauth2.Config, token string) (model.RemoteAccount, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix/users", nil)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", err)
+	}
+	req.Header.Add("Client-ID", config.ClientID)
+	req.Header.Add("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", err)
+	}
+
+	fmt.Println(string(body))
+
+	var userInfo TwitchUserInfo
+	err = json.Unmarshal(body, &userInfo)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", err)
+	}
+
+	if len(userInfo.Data) == 0 {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", serviceerror.ErrRecordNotFound)
+	}
+
+	return model.RemoteAccount{
+		RemoteID:    userInfo.Data[0].ID,
+		RemoteEmail: userInfo.Data[0].Email,
+		Platform:    model.Twitch,
+	}, nil
+}
+
+type YandexUserInfo struct {
+	ID    string `json:"id"`
+	Email string `json:"default_email"`
 }
 
 func AuthorizeYandex(token string) (model.RemoteAccount, error) {
-	return model.RemoteAccount{}, nil
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "https://login.yandex.ru/info", nil)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeYandex: %w", err)
+	}
+	req.Header.Add("Authorization", "OAuth "+token)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeYandex: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeYandex: %w", err)
+	}
+
+	var userInfo YandexUserInfo
+	err = json.Unmarshal(body, &userInfo)
+	if err != nil {
+		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeYandex: %w", err)
+	}
+
+	return model.RemoteAccount{
+		RemoteID:    userInfo.ID,
+		RemoteEmail: userInfo.Email,
+		Platform:    model.Yandex,
+	}, nil
 }

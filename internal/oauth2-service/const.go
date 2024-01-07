@@ -26,16 +26,16 @@ var googleOauth2Config = &oauth2.Config{
 
 var yandexOauth2Config = &oauth2.Config{
 	RedirectURL:  fmt.Sprintf("%s/%s", BaseCallbackURL, model.Yandex),
-	ClientID:     "YOUR_CLIENT_ID",
-	ClientSecret: "YOUR_CLIENT_SECRET",
+	ClientID:     "4dbafe42e4f04430824e9d8a6d84e68d",
+	ClientSecret: "f15f546861b84d1abd9ed0eae3ea14dd",
 	Scopes:       []string{},
 	Endpoint:     yandex.Endpoint,
 }
 
 var twitchOauth2Config = &oauth2.Config{
 	RedirectURL:  fmt.Sprintf("%s/%s", BaseCallbackURL, model.Twitch),
-	ClientID:     "YOUR_CLIENT_ID",
-	ClientSecret: "YOUR_CLIENT_SECRET",
-	Scopes:       []string{},
+	ClientID:     "imjoly4a42a44gjafzpe7nspql0wq9",
+	ClientSecret: "hgcwsg6o34emjpfufpvvs9hyt1xlpy",
+	Scopes:       []string{"user:read:email"},
 	Endpoint:     twitch.Endpoint,
 }

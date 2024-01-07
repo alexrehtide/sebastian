@@ -1,6 +1,12 @@
 import axios from "axios";
 
-type Api = AuthAuthorize & AuthAuthenticate & Oauth2AuthCodeURL & Oauth2Authenticate & TOTPGenerate;
+type Api = AuthAuthorize &
+  AuthAuthenticate &
+  AuthBeginRegistration &
+  AuthEndRegistration &
+  Oauth2AuthCodeURL &
+  Oauth2Authenticate &
+  TOTPGenerate;
 
 type AuthAuthorize = (path: "/api/auth/authorize") => Promise<AuthAuthorizeOutput>;
 type AuthAuthorizeOutput = { id: number; email: string };
@@ -11,6 +17,19 @@ type AuthAuthenticate = (
 ) => Promise<AuthAuthenticateOutput>;
 type AuthAuthenticateInput = { email: string; password: string };
 type AuthAuthenticateOutput = { accessToken: string; refreshToken: string };
+
+type AuthBeginRegistration = (
+  path: "/api/auth/begin_registration",
+  body: AuthBeginRegistrationInput
+) => Promise<void>;
+type AuthBeginRegistrationInput = { email: string; password: string; username: string };
+
+type AuthEndRegistration = (
+  path: "/api/auth/end_registration",
+  body: AuthEndRegistrationInput
+) => Promise<AuthEndRegistrationOutput>;
+type AuthEndRegistrationInput = { verificationCode: string };
+type AuthEndRegistrationOutput = { accessToken: string; refreshToken: string };
 
 type Oauth2AuthCodeURL = (
   path: "/api/oauth2/auth_code_url",

@@ -1,12 +1,12 @@
-package accountservice
+package password
 
 import (
 	"crypto/sha1"
 	"encoding/hex"
 )
 
-func (s *Service) hash(source string) string {
+func HashPassword(src string) string {
 	hasher := sha1.New()
-	hasher.Write([]byte(source))
+	hasher.Write([]byte(src))
 	return hex.EncodeToString(hasher.Sum(nil))
 }

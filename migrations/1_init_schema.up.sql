@@ -70,3 +70,13 @@ CREATE TABLE remote_account (
     FOREIGN KEY(account_id) 
 	    REFERENCES account(id)
 );
+
+CREATE TABLE registration_form (
+  id INT GENERATED ALWAYS AS IDENTITY,
+  email varchar(256) NOT NULL,
+  username varchar(256) NOT NULL,
+  password varchar(256) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE,
+  verification_code varchar(64) NOT NULL,
+  PRIMARY KEY(id)
+);

@@ -15,11 +15,14 @@ import (
 	loginattemptservice "github.com/alexrehtide/sebastian/internal/login-attempt-service"
 	loginattemptstorage "github.com/alexrehtide/sebastian/internal/login-attempt-storage"
 	logrushooker "github.com/alexrehtide/sebastian/internal/logrus-hooker"
+	mailservice "github.com/alexrehtide/sebastian/internal/mail-service"
 	oauth2controller "github.com/alexrehtide/sebastian/internal/oauth2-controller"
 	oauth2service "github.com/alexrehtide/sebastian/internal/oauth2-service"
 	rbaccontroller "github.com/alexrehtide/sebastian/internal/rbac-controller"
 	rbacmiddleware "github.com/alexrehtide/sebastian/internal/rbac-middleware"
 	rbacservice "github.com/alexrehtide/sebastian/internal/rbac-service"
+	registrationformservice "github.com/alexrehtide/sebastian/internal/registration-form-service"
+	registrationformstorage "github.com/alexrehtide/sebastian/internal/registration-form-storage"
 	remoteaccountstorage "github.com/alexrehtide/sebastian/internal/remote-account-storage"
 	sessionprovider "github.com/alexrehtide/sebastian/internal/session-provider"
 	sessionservice "github.com/alexrehtide/sebastian/internal/session-service"
@@ -39,9 +42,10 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	accountRoleStorage := accountrolestorage.New(sqlxDB)
 	accountStorage := accountstorage.New(sqlxDB)
 	loginAttemptStorage := loginattemptstorage.New(sqlxDB)
+	logStorage := logstorage.New(sqlxDB)
+	registrationFormStorage := registrationformstorage.New(sqlxDB)
 	remoteAccountStorage := remoteaccountstorage.New(sqlxDB)
 	sessionStorage := sessionstorage.New(sqlxDB)
-	logStorage := logstorage.New(sqlxDB)
 
 	validate := validator.New()
 
@@ -49,8 +53,10 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	sessionService := sessionservice.New(log, sessionStorage, validate)
 	authService := authservice.New(accountService, sessionService, validate)
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
+	mailService := mailservice.New("admin@taris.fun", "32213345Qq")          // TODO: secure credentials
 	oauth2Service := oauth2service.New(remoteAccountStorage, "random state") // TODO: change state
 	rbacService := rbacservice.New(accountRoleStorage, validate)
+	registrationFormService := registrationformservice.New(accountService, rbacService, registrationFormStorage)
 	totpService := totpservice.New()
 
 	accountProvider := accountprovider.New()
@@ -59,7 +65,7 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	authMiddleware := authmiddleware.New(accountProvider, accountService, sessionProvider, sessionService)
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
 	accountController := accountcontroller.New(accountService)
-	authController := authcontroller.New(accountProvider, authService, loginAttemptService, rbacService)
+	authController := authcontroller.New(accountProvider, authService, loginAttemptService, mailService, rbacService, registrationFormService, sessionService)
 	oauth2Controller := oauth2controller.New(accountService, oauth2Service, rbacService, sessionService)
 	rbacController := rbaccontroller.New(rbacService)
 	totpController := totpcontroller.New(accountProvider, totpService)
@@ -86,6 +92,8 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 		g := app.Group("/auth")
 		g.Post("/authenticate", authController.Authenticate)
 		g.Post("/authorize", wp(model.AuthAuthorize), authController.Authorize)
+		g.Post("/begin_registration", authController.BeginRegistration)
+		g.Post("/end_registration", authController.EndRegistration)
 		g.Post("/logout", wp(model.AuthLogout), authController.Logout)
 		g.Post("/refresh", wp(model.AuthRefresh), authController.Refresh)
 	}
