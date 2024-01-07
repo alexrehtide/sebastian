@@ -1,4 +1,4 @@
-package registrationformstorage
+package passwordresettingstorage
 
 import (
 	"context"
@@ -13,7 +13,7 @@ func (s *Storage) Delete(ctx context.Context, id uint) error {
 		Where(squirrel.Eq{COLUMN_ID: id}).
 		QueryContext(ctx)
 	if err != nil {
-		return fmt.Errorf("registrationformstorage.Storage.Delete: %w", err)
+		return fmt.Errorf("passwordresettingstorage.Storage.Delete: %w", err)
 	}
 	return nil
 }

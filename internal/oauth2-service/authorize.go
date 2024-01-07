@@ -128,8 +128,6 @@ func AuthorizeTwitch(config *oauth2.Config, token string) (model.RemoteAccount, 
 		return model.RemoteAccount{}, fmt.Errorf("oauth2service.AuthorizeTwitch: %w", err)
 	}
 
-	fmt.Println(string(body))
-
 	var userInfo TwitchUserInfo
 	err = json.Unmarshal(body, &userInfo)
 	if err != nil {

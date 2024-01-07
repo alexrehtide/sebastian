@@ -12,7 +12,7 @@ type EndRegistrationOptions struct {
 	VerificationCode string
 }
 
-type RegistrationForm struct {
+type Registration struct {
 	ID               uint      `db:"id"`
 	Email            string    `db:"email"`
 	Username         string    `db:"username"`
@@ -21,14 +21,14 @@ type RegistrationForm struct {
 	VerificationCode string    `db:"verification_code"`
 }
 
-type CreateRegistrationFormOptions struct {
+type CreateRegistrationOptions struct {
 	Email            string
 	Username         string
 	Password         string
 	VerificationCode string
 }
 
-type ReadRegistrationFormOptions struct {
+type ReadRegistrationOptions struct {
 	ID               uint
 	Email            string
 	Username         string

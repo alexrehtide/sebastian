@@ -1,4 +1,4 @@
-package authcontroller
+package registrationcontroller
 
 import (
 	"github.com/alexrehtide/sebastian/model"
@@ -16,13 +16,13 @@ type BeginRegistrationOutput struct {
 	CreatedID uint `json:"createdId"`
 }
 
-func (ctrl *Controller) BeginRegistration(c *fiber.Ctx) error {
+func (ctrl *Controller) Begin(c *fiber.Ctx) error {
 	var input BeginRegistrationInput
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	url, err := ctrl.RegistrationFormService.BeginRegistration(c.UserContext(), model.BeginRegistrationOptions{
+	url, err := ctrl.RegistrationFormService.Begin(c.UserContext(), model.BeginRegistrationOptions{
 		Email:    input.Email,
 		Username: input.Username,
 		Password: password.HashPassword(input.Password),

@@ -2,10 +2,12 @@ import axios from "axios";
 
 type Api = AuthAuthorize &
   AuthAuthenticate &
-  AuthBeginRegistration &
-  AuthEndRegistration &
   Oauth2AuthCodeURL &
   Oauth2Authenticate &
+  PasswordResettingBegin &
+  PasswordResettingEnd &
+  RegistrationBegin &
+  RegistrationEnd &
   TOTPGenerate;
 
 type AuthAuthorize = (path: "/api/auth/authorize") => Promise<AuthAuthorizeOutput>;
@@ -17,19 +19,6 @@ type AuthAuthenticate = (
 ) => Promise<AuthAuthenticateOutput>;
 type AuthAuthenticateInput = { email: string; password: string };
 type AuthAuthenticateOutput = { accessToken: string; refreshToken: string };
-
-type AuthBeginRegistration = (
-  path: "/api/auth/begin_registration",
-  body: AuthBeginRegistrationInput
-) => Promise<void>;
-type AuthBeginRegistrationInput = { email: string; password: string; username: string };
-
-type AuthEndRegistration = (
-  path: "/api/auth/end_registration",
-  body: AuthEndRegistrationInput
-) => Promise<AuthEndRegistrationOutput>;
-type AuthEndRegistrationInput = { verificationCode: string };
-type AuthEndRegistrationOutput = { accessToken: string; refreshToken: string };
 
 type Oauth2AuthCodeURL = (
   path: "/api/oauth2/auth_code_url",
@@ -44,6 +33,22 @@ type Oauth2Authenticate = (
 ) => Promise<Oauth2AuthenticateOutput>;
 type Oauth2AuthenticateInput = { platform: string; code: string };
 type Oauth2AuthenticateOutput = { accessToken: string; refreshToken: string };
+
+type PasswordResettingBegin = (
+  path: "/api/password_resetting/begin",
+  body: PasswordResettingBeginInput
+) => Promise<void>;
+type PasswordResettingBeginInput = { email: string };
+
+type PasswordResettingEnd = (path: "/api/password_resetting/end", body: PasswordResettingEndInput) => Promise<void>;
+type PasswordResettingEndInput = { resettingCode: string, newPassword: string };
+
+type RegistrationBegin = (path: "/api/registration/begin", body: RegistrationBeginInput) => Promise<void>;
+type RegistrationBeginInput = { email: string; password: string; username: string };
+
+type RegistrationEnd = (path: "/api/registration/end", body: RegistrationEndInput) => Promise<RegistrationEndOutput>;
+type RegistrationEndInput = { verificationCode: string };
+type RegistrationEndOutput = { accessToken: string; refreshToken: string };
 
 type TOTPGenerate = (path: "/api/totp/generate") => Promise<TOTPGenerateOutput>;
 type TOTPGenerateOutput = { url: string };

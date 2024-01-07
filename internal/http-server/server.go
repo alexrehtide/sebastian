@@ -18,11 +18,15 @@ import (
 	mailservice "github.com/alexrehtide/sebastian/internal/mail-service"
 	oauth2controller "github.com/alexrehtide/sebastian/internal/oauth2-controller"
 	oauth2service "github.com/alexrehtide/sebastian/internal/oauth2-service"
+	passwordresettingcontroller "github.com/alexrehtide/sebastian/internal/password-resetting-controller"
+	passwordresettingservice "github.com/alexrehtide/sebastian/internal/password-resetting-service"
+	passwordresettingstorage "github.com/alexrehtide/sebastian/internal/password-resetting-storage"
 	rbaccontroller "github.com/alexrehtide/sebastian/internal/rbac-controller"
 	rbacmiddleware "github.com/alexrehtide/sebastian/internal/rbac-middleware"
 	rbacservice "github.com/alexrehtide/sebastian/internal/rbac-service"
-	registrationformservice "github.com/alexrehtide/sebastian/internal/registration-form-service"
-	registrationformstorage "github.com/alexrehtide/sebastian/internal/registration-form-storage"
+	registrationcontroller "github.com/alexrehtide/sebastian/internal/registration-controller"
+	registrationservice "github.com/alexrehtide/sebastian/internal/registration-service"
+	registrationstorage "github.com/alexrehtide/sebastian/internal/registration-storage"
 	remoteaccountstorage "github.com/alexrehtide/sebastian/internal/remote-account-storage"
 	sessionprovider "github.com/alexrehtide/sebastian/internal/session-provider"
 	sessionservice "github.com/alexrehtide/sebastian/internal/session-service"
@@ -43,7 +47,8 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	accountStorage := accountstorage.New(sqlxDB)
 	loginAttemptStorage := loginattemptstorage.New(sqlxDB)
 	logStorage := logstorage.New(sqlxDB)
-	registrationFormStorage := registrationformstorage.New(sqlxDB)
+	passwordResettingStorage := passwordresettingstorage.New(sqlxDB)
+	registrationFormStorage := registrationstorage.New(sqlxDB)
 	remoteAccountStorage := remoteaccountstorage.New(sqlxDB)
 	sessionStorage := sessionstorage.New(sqlxDB)
 
@@ -55,8 +60,9 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
 	mailService := mailservice.New("admin@taris.fun", "32213345Qq")          // TODO: secure credentials
 	oauth2Service := oauth2service.New(remoteAccountStorage, "random state") // TODO: change state
+	passwordResettingService := passwordresettingservice.New(accountService, passwordResettingStorage)
 	rbacService := rbacservice.New(accountRoleStorage, validate)
-	registrationFormService := registrationformservice.New(accountService, rbacService, registrationFormStorage)
+	registrationFormService := registrationservice.New(accountService, rbacService, registrationFormStorage)
 	totpService := totpservice.New()
 
 	accountProvider := accountprovider.New()
@@ -65,9 +71,11 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	authMiddleware := authmiddleware.New(accountProvider, accountService, sessionProvider, sessionService)
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
 	accountController := accountcontroller.New(accountService)
-	authController := authcontroller.New(accountProvider, authService, loginAttemptService, mailService, rbacService, registrationFormService, sessionService)
+	authController := authcontroller.New(accountProvider, authService, loginAttemptService, rbacService)
 	oauth2Controller := oauth2controller.New(accountService, oauth2Service, rbacService, sessionService)
+	passwordResettingController := passwordresettingcontroller.New(mailService, passwordResettingService)
 	rbacController := rbaccontroller.New(rbacService)
+	registrationController := registrationcontroller.New(mailService, registrationFormService, sessionService)
 	totpController := totpcontroller.New(accountProvider, totpService)
 
 	log.Hooks.Add(logrushooker.New(logStorage, sessionProvider))
@@ -92,8 +100,6 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 		g := app.Group("/auth")
 		g.Post("/authenticate", authController.Authenticate)
 		g.Post("/authorize", wp(model.AuthAuthorize), authController.Authorize)
-		g.Post("/begin_registration", authController.BeginRegistration)
-		g.Post("/end_registration", authController.EndRegistration)
 		g.Post("/logout", wp(model.AuthLogout), authController.Logout)
 		g.Post("/refresh", wp(model.AuthRefresh), authController.Refresh)
 	}
@@ -105,10 +111,22 @@ func New(sqlDB *sql.DB, log *logrus.Logger) *Server {
 	}
 
 	{
+		g := app.Group("/password_resetting")
+		g.Post("/begin", passwordResettingController.Begin)
+		g.Post("/end", passwordResettingController.End)
+	}
+
+	{
 		g := app.Group("/rbac")
 		g.Post("/add_account_role", wp(model.RBACAddAccountRole), rbacController.AddAccountRole)
 		g.Post("/read_account_roles", wp(model.RBACReadAccountRoles), rbacController.ReadAccountRoles)
 		g.Post("/remove_account_role", wp(model.RBACRemoveAccountRole), rbacController.RemoveAccountRole)
+	}
+
+	{
+		g := app.Group("/registration")
+		g.Post("/begin", registrationController.Begin)
+		g.Post("/end", registrationController.End)
 	}
 
 	{

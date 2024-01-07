@@ -23,4 +23,5 @@ type CreateAccountOptions struct {
 type UpdateAccountOptions struct {
 	Username string `validate:"max=256"`
 	Email    string `validate:"email,max=256"`
+	Password string `validate:"required,min=8,max=256"`
 }

@@ -1,4 +1,4 @@
-package registrationformstorage
+package registrationstorage
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/alexrehtide/sebastian/model"
 )
 
-func (s *Storage) Create(ctx context.Context, ops model.CreateRegistrationFormOptions) (id uint, err error) {
+func (s *Storage) Create(ctx context.Context, ops model.CreateRegistrationOptions) (id uint, err error) {
 	err = s.sq.
 		Insert(TABLE_NAME).
 		Columns(
@@ -28,7 +28,7 @@ func (s *Storage) Create(ctx context.Context, ops model.CreateRegistrationFormOp
 		Suffix(fmt.Sprintf("RETURNING %s", COLUMN_ID)).
 		ScanContext(ctx, &id)
 	if err != nil {
-		return 0, fmt.Errorf("registrationformstorage.Storage.Create: %w", err)
+		return 0, fmt.Errorf("registrationstorage.Storage.Create: %w", err)
 	}
 	return id, nil
 }

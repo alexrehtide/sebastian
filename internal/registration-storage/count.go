@@ -1,4 +1,4 @@
-package registrationformstorage
+package registrationstorage
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/alexrehtide/sebastian/model"
 )
 
-func (s *Storage) Count(ctx context.Context, ops model.ReadRegistrationFormOptions) (count int, err error) {
+func (s *Storage) Count(ctx context.Context, ops model.ReadRegistrationOptions) (count int, err error) {
 	err = s.sq.
 		Select("count(*)").
 		From(TABLE_NAME).
@@ -15,7 +15,7 @@ func (s *Storage) Count(ctx context.Context, ops model.ReadRegistrationFormOptio
 		QueryRowContext(ctx).
 		Scan(&count)
 	if err != nil {
-		return 0, fmt.Errorf("registrationformstorage.Storage.Count: %w", err)
+		return 0, fmt.Errorf("registrationstorage.Storage.Count: %w", err)
 	}
 	return
 }

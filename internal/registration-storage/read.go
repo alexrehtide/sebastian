@@ -1,4 +1,4 @@
-package registrationformstorage
+package registrationstorage
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/alexrehtide/sebastian/model"
 )
 
-func (s *Storage) Read(ctx context.Context, ops model.ReadRegistrationFormOptions, pgOps model.PaginationOptions) (rows []model.RegistrationForm, err error) {
+func (s *Storage) Read(ctx context.Context, ops model.ReadRegistrationOptions, pgOps model.PaginationOptions) (rows []model.Registration, err error) {
 	sql, args, err := s.sq.
 		Select(
 			COLUMN_ID,
@@ -23,10 +23,10 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadRegistrationFormOption
 		Offset(uint64(pgOps.Offset)).
 		ToSql()
 	if err != nil {
-		return []model.RegistrationForm{}, fmt.Errorf("registrationformstorage.Storage.Read: %w", err)
+		return []model.Registration{}, fmt.Errorf("registrationstorage.Storage.Read: %w", err)
 	}
 	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
-		return []model.RegistrationForm{}, fmt.Errorf("registrationformstorage.Storage.Read: %w", err)
+		return []model.Registration{}, fmt.Errorf("registrationstorage.Storage.Read: %w", err)
 	}
 	return rows, nil
 }

@@ -9,10 +9,14 @@ import (
 )
 
 func (s *Storage) Update(ctx context.Context, id uint, ops model.UpdateLoginAttemptOptions) error {
-	_, err := s.sq.
-		Update(TABLE_NAME).
-		Set(COLUMN_COUNT, ops.Count).
-		Set(COLUMN_LAST_FAILED, ops.LastFailed).
+	sq := s.sq.Update(TABLE_NAME)
+	if ops.Count != 0 {
+		sq = sq.Set(COLUMN_COUNT, ops.Count)
+	}
+	if !ops.LastFailed.IsZero() {
+		sq = sq.Set(COLUMN_LAST_FAILED, ops.LastFailed)
+	}
+	_, err := sq.
 		Where(squirrel.Eq{COLUMN_ID: id}).
 		ExecContext(ctx)
 	if err != nil {

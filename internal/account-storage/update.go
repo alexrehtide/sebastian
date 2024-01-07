@@ -9,12 +9,16 @@ import (
 )
 
 func (s *Storage) Update(ctx context.Context, id uint, ops model.UpdateAccountOptions) error {
+	fmt.Printf("2) %v %+v", id, ops)
 	sq := s.sq.Update(TABLE_NAME)
-	if len(ops.Email) != 0 {
-		sq.Set(COLUMN_EMAIL, ops.Email)
+	if ops.Email != "" {
+		sq = sq.Set(COLUMN_EMAIL, ops.Email)
 	}
-	if len(ops.Username) != 0 {
-		sq.Set(COLUMN_USERNAME, ops.Username)
+	if ops.Username != "" {
+		sq = sq.Set(COLUMN_USERNAME, ops.Username)
+	}
+	if ops.Password != "" {
+		sq = sq.Set(COLUMN_PASSWORD, ops.Password)
 	}
 	_, err := sq.
 		Where(squirrel.Eq{COLUMN_ID: id}).

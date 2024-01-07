@@ -1,4 +1,4 @@
-package registrationformservice
+package registrationservice
 
 import (
 	"context"
@@ -15,10 +15,10 @@ type RBACService interface {
 }
 
 type RegistrationFormStorage interface {
-	Count(ctx context.Context, ops model.ReadRegistrationFormOptions) (count int, err error)
-	Create(ctx context.Context, ops model.CreateRegistrationFormOptions) (id uint, err error)
+	Count(ctx context.Context, ops model.ReadRegistrationOptions) (count int, err error)
+	Create(ctx context.Context, ops model.CreateRegistrationOptions) (id uint, err error)
 	Delete(ctx context.Context, id uint) error
-	Read(ctx context.Context, ops model.ReadRegistrationFormOptions, pgOps model.PaginationOptions) (rows []model.RegistrationForm, err error)
+	Read(ctx context.Context, ops model.ReadRegistrationOptions, pgOps model.PaginationOptions) (rows []model.Registration, err error)
 }
 
 func New(accountService AccountService, rbacService RBACService, registrationsFormStorage RegistrationFormStorage) *Service {

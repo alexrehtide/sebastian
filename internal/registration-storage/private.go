@@ -1,11 +1,11 @@
-package registrationformstorage
+package registrationstorage
 
 import (
 	"github.com/Masterminds/squirrel"
 	"github.com/alexrehtide/sebastian/model"
 )
 
-func (s *Storage) buildWhere(ops model.ReadRegistrationFormOptions) squirrel.Eq {
+func (s *Storage) buildWhere(ops model.ReadRegistrationOptions) squirrel.Eq {
 	where := squirrel.Eq{}
 	if ops.ID != 0 {
 		where[COLUMN_ID] = ops.ID

@@ -1,4 +1,4 @@
-package authcontroller
+package registrationcontroller
 
 import (
 	"github.com/alexrehtide/sebastian/model"
@@ -14,13 +14,13 @@ type EndRegistrationOutput struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-func (ctrl *Controller) EndRegistration(c *fiber.Ctx) error {
+func (ctrl *Controller) End(c *fiber.Ctx) error {
 	var input EndRegistrationInput
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	accID, err := ctrl.RegistrationFormService.EndRegistration(c.UserContext(), model.EndRegistrationOptions{VerificationCode: input.VerificationCode})
+	accID, err := ctrl.RegistrationFormService.End(c.UserContext(), model.EndRegistrationOptions{VerificationCode: input.VerificationCode})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

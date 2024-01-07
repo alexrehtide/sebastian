@@ -71,7 +71,7 @@ CREATE TABLE remote_account (
 	    REFERENCES account(id)
 );
 
-CREATE TABLE registration_form (
+CREATE TABLE registration (
   id INT GENERATED ALWAYS AS IDENTITY,
   email varchar(256) NOT NULL,
   username varchar(256) NOT NULL,
@@ -79,4 +79,15 @@ CREATE TABLE registration_form (
   created_at TIMESTAMP WITH TIME ZONE,
   verification_code varchar(64) NOT NULL,
   PRIMARY KEY(id)
+);
+
+CREATE TABLE password_resetting (
+  id INT GENERATED ALWAYS AS IDENTITY,
+  account_id INT,
+  resetting_code varchar(64) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE,
+  PRIMARY KEY(id),
+  CONSTRAINT fk_password_resetting_account_id
+    FOREIGN KEY(account_id) 
+	    REFERENCES account(id)
 );

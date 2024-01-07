@@ -1,7 +1,7 @@
-package registrationformstorage
+package registrationstorage
 
 const (
-	TABLE_NAME               = "registration_form"
+	TABLE_NAME               = "registration"
 	COLUMN_ID                = "id"
 	COLUMN_EMAIL             = "email"
 	COLUMN_USERNAME          = "username"

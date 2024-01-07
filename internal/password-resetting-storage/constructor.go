@@ -1,4 +1,4 @@
-package registrationformstorage
+package passwordresettingstorage
 
 import (
 	"github.com/Masterminds/squirrel"

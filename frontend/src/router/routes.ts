@@ -41,6 +41,9 @@ const routes: RouteRecordRaw[] = [
       {
         path: "forgot_password",
         component: () => import("views/auth/forgot-password/ForgotPasswordPage.vue"),
+        props: (to) => ({
+          resettingCode: to.query["resetting_code"],
+        }),
       },
       {
         path: "blocked",

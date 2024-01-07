@@ -37,7 +37,7 @@ const password = ref("");
 const passwordRepeat = ref("");
 
 const beginRegistration = () => {
-  return api("/api/auth/begin_registration", {
+  return api("/api/registration/begin", {
     email: email.value,
     username: username.value,
     password: password.value,
@@ -46,7 +46,7 @@ const beginRegistration = () => {
 
 onBeforeMount(() => {
   if (props.verificationCode) {
-    return api("/api/auth/end_registration", { verificationCode: props.verificationCode })
+    return api("/api/registration/end", { verificationCode: props.verificationCode })
       .then((data) => {
         localStorage.setItem("ACCESS_TOKEN", data.accessToken);
         localStorage.setItem("REFRESH_TOKEN", data.refreshToken);
