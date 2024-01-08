@@ -17,6 +17,7 @@ func (s *Storage) Create(ctx context.Context, ops model.CreateRemoteAccountOptio
 		Columns(COLUMN_ACCOUNT_ID, COLUMN_REMOTE_ID, COLUMN_REMOTE_EMAIL, COLUMN_PLATFORM).
 		Values(accountID, ops.RemoteID, ops.RemoteEmail, ops.Platform).
 		Suffix(fmt.Sprintf("RETURNING %s", COLUMN_ID)).
+		RunWith(s.getter.DefaultTrOrDB(ctx, s.db)).
 		ScanContext(ctx, &id)
 	if err != nil {
 		return 0, fmt.Errorf("remoteaccountstorage.Storage.Create: %w", err)

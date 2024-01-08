@@ -19,7 +19,7 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadAccountRoleOptions, pg
 	if err != nil {
 		return []model.AccountRole{}, fmt.Errorf("accountrolestorage.Storage.Read: %w", err)
 	}
-	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
+	if err := s.getter.DefaultTrOrDB(ctx, s.db).SelectContext(ctx, &rows, sql, args...); err != nil {
 		return []model.AccountRole{}, fmt.Errorf("accountrolestorage.Storage.Read: %w", err)
 	}
 	return rows, nil

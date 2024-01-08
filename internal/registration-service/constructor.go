@@ -21,11 +21,22 @@ type RegistrationFormStorage interface {
 	Read(ctx context.Context, ops model.ReadRegistrationOptions, pgOps model.PaginationOptions) (rows []model.Registration, err error)
 }
 
-func New(accountService AccountService, rbacService RBACService, registrationsFormStorage RegistrationFormStorage) *Service {
+type TransactionManager interface {
+	Do(ctx context.Context, fn func(ctx context.Context) error) error
+}
+
+func New(
+	accountService AccountService,
+	rbacService RBACService,
+	registrationsFormStorage RegistrationFormStorage,
+	trm TransactionManager,
+) *Service {
 	return &Service{
 		AccountService:          accountService,
 		RBACService:             rbacService,
 		RegistrationFormStorage: registrationsFormStorage,
+
+		trm: trm,
 	}
 }
 
@@ -33,4 +44,5 @@ type Service struct {
 	AccountService          AccountService
 	RBACService             RBACService
 	RegistrationFormStorage RegistrationFormStorage
+	trm                     TransactionManager
 }

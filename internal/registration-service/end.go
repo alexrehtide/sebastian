@@ -18,21 +18,30 @@ func (s *Service) End(ctx context.Context, ops model.EndRegistrationOptions) (ui
 	}
 
 	row := rows[0]
-	accId, err := s.AccountService.Create(ctx, model.CreateAccountOptions{
-		Email:    row.Email,
-		Username: row.Username,
-		Password: row.Password,
+	var accId uint
+	err = s.trm.Do(ctx, func(ctx context.Context) error {
+		id, err := s.AccountService.Create(ctx, model.CreateAccountOptions{
+			Email:    row.Email,
+			Username: row.Username,
+			Password: row.Password,
+		})
+		if err != nil {
+			return err
+		}
+
+		err = s.RBACService.AddAccountRole(ctx, id, model.User)
+		if err != nil {
+			return err
+		}
+
+		err = s.RegistrationFormStorage.Delete(ctx, row.ID)
+		if err != nil {
+			return err
+		}
+
+		accId = id
+		return nil
 	})
-	if err != nil {
-		return 0, fmt.Errorf("registrationservice.Service.End: %w", err)
-	}
-
-	err = s.RBACService.AddAccountRole(ctx, accId, model.User)
-	if err != nil {
-		return 0, fmt.Errorf("registrationservice.Service.End: %w", err)
-	}
-
-	err = s.RegistrationFormStorage.Delete(ctx, row.ID)
 	if err != nil {
 		return 0, fmt.Errorf("registrationservice.Service.End: %w", err)
 	}

@@ -14,6 +14,7 @@ func (s *Storage) Create(ctx context.Context, ops model.CreateSessionOptions) (i
 		Columns(COLUMN_ACCOUNT_ID, COLUMN_ACCESS_TOKEN, COLUMN_REFRESH_TOKEN, COLUMN_CREATED_AT, COLUMN_UPDATED_AT).
 		Values(ops.AccountID, ops.AccessToken, ops.RefreshToken, time.Now(), time.Now()).
 		Suffix(fmt.Sprintf("RETURNING %s", COLUMN_ID)).
+		RunWith(s.getter.DefaultTrOrDB(ctx, s.db)).
 		ScanContext(ctx, &id)
 	if err != nil {
 		return 0, fmt.Errorf("sessionstorage.Storage.Create: %w", err)

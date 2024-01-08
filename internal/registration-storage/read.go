@@ -25,7 +25,7 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadRegistrationOptions, p
 	if err != nil {
 		return []model.Registration{}, fmt.Errorf("registrationstorage.Storage.Read: %w", err)
 	}
-	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
+	if err := s.getter.DefaultTrOrDB(ctx, s.db).SelectContext(ctx, &rows, sql, args...); err != nil {
 		return []model.Registration{}, fmt.Errorf("registrationstorage.Storage.Read: %w", err)
 	}
 	return rows, nil

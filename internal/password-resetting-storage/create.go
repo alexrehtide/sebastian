@@ -22,6 +22,7 @@ func (s *Storage) Create(ctx context.Context, ops model.CreatePasswordResettingO
 			time.Now(),
 		).
 		Suffix(fmt.Sprintf("RETURNING %s", COLUMN_ID)).
+		RunWith(s.getter.DefaultTrOrDB(ctx, s.db)).
 		ScanContext(ctx, &id)
 	if err != nil {
 		return 0, fmt.Errorf("passwordresettingstorage.Storage.Create: %w", err)

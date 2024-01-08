@@ -18,7 +18,7 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadSessionOptions, pgOps 
 	if err != nil {
 		return []model.Session{}, fmt.Errorf("sessionstorage.Storage.Read: %w", err)
 	}
-	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
+	if err := s.getter.DefaultTrOrDB(ctx, s.db).SelectContext(ctx, &rows, sql, args...); err != nil {
 		return []model.Session{}, fmt.Errorf("sessionstorage.Storage.Read: %w", err)
 	}
 	return rows, nil

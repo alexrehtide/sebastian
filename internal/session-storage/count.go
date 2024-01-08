@@ -12,6 +12,7 @@ func (s *Storage) Count(ctx context.Context, ops model.ReadSessionOptions) (coun
 		Select("count(*)").
 		From(TABLE_NAME).
 		Where(s.buildWhere(ops)).
+		RunWith(s.getter.DefaultTrOrDB(ctx, s.db)).
 		QueryRowContext(ctx).
 		Scan(&count)
 	if err != nil {

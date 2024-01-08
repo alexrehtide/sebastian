@@ -18,6 +18,7 @@ func (s *Storage) Update(ctx context.Context, id uint, ops model.UpdateLoginAtte
 	}
 	_, err := sq.
 		Where(squirrel.Eq{COLUMN_ID: id}).
+		RunWith(s.getter.DefaultTrOrDB(ctx, s.db)).
 		ExecContext(ctx)
 	if err != nil {
 		return fmt.Errorf("loginattemptstorage.Storage.Update: %w", err)

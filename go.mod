@@ -19,6 +19,9 @@ require (
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
+	github.com/avito-tech/go-transaction-manager/drivers/sql/v2 v2.0.0-rc6 // indirect
+	github.com/avito-tech/go-transaction-manager/drivers/sqlx/v2 v2.0.0-rc7 // indirect
+	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.0-rc7 // indirect
 	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
@@ -43,6 +46,7 @@ require (
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect

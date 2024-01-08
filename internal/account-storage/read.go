@@ -18,7 +18,7 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadAccountOptions, pgOps 
 	if err != nil {
 		return []model.Account{}, fmt.Errorf("accountstorage.Storage.Read: %w", err)
 	}
-	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
+	if err := s.getter.DefaultTrOrDB(ctx, s.db).SelectContext(ctx, &rows, sql, args...); err != nil {
 		return []model.Account{}, fmt.Errorf("accountstorage.Storage.Read: %w", err)
 	}
 	return rows, nil

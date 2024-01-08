@@ -22,7 +22,7 @@ func (ctrl *Controller) Begin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	url, err := ctrl.RegistrationFormService.Begin(c.UserContext(), model.BeginRegistrationOptions{
+	url, err := ctrl.RegistrationService.Begin(c.UserContext(), model.BeginRegistrationOptions{
 		Email:    input.Email,
 		Username: input.Username,
 		Password: password.HashPassword(input.Password),

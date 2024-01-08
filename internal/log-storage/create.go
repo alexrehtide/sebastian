@@ -37,6 +37,7 @@ func (s *Storage) Create(ctx context.Context, ops model.CreateLogOptions) (id ui
 			ops.CreatedAt,
 		).
 		Suffix(fmt.Sprintf("RETURNING %s", COLUMN_ID)).
+		RunWith(s.getter.DefaultTrOrDB(ctx, s.db)).
 		ScanContext(ctx, &id)
 	if err != nil {
 		return 0, fmt.Errorf("logstorage.Storage.Create: %w", err)

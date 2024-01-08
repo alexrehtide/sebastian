@@ -20,7 +20,7 @@ func (ctrl *Controller) End(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	accID, err := ctrl.RegistrationFormService.End(c.UserContext(), model.EndRegistrationOptions{VerificationCode: input.VerificationCode})
+	accID, err := ctrl.RegistrationService.End(c.UserContext(), model.EndRegistrationOptions{VerificationCode: input.VerificationCode})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

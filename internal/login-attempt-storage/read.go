@@ -18,7 +18,7 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadLoginAttemptOptions, p
 	if err != nil {
 		return []model.LoginAttempt{}, fmt.Errorf("loginattemptstorage.Storage.Read: %w", err)
 	}
-	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
+	if err := s.getter.DefaultTrOrDB(ctx, s.db).SelectContext(ctx, &rows, sql, args...); err != nil {
 		return []model.LoginAttempt{}, fmt.Errorf("loginattemptstorage.Storage.Read: %w", err)
 	}
 	return rows, nil

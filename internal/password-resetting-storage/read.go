@@ -23,7 +23,7 @@ func (s *Storage) Read(ctx context.Context, ops model.ReadPasswordResettingOptio
 	if err != nil {
 		return []model.PasswordResetting{}, fmt.Errorf("passwordresettingstorage.Storage.Read: %w", err)
 	}
-	if err := s.db.SelectContext(ctx, &rows, sql, args...); err != nil {
+	if err := s.getter.DefaultTrOrDB(ctx, s.db).SelectContext(ctx, &rows, sql, args...); err != nil {
 		return []model.PasswordResetting{}, fmt.Errorf("passwordresettingstorage.Storage.Read: %w", err)
 	}
 	return rows, nil

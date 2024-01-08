@@ -20,6 +20,7 @@ func (s *Storage) Update(ctx context.Context, id uint, ops model.UpdateSessionOp
 	_, err := sq.
 		Set(COLUMN_UPDATED_AT, time.Now()).
 		Where(squirrel.Eq{COLUMN_ID: id}).
+		RunWith(s.getter.DefaultTrOrDB(ctx, s.db)).
 		ExecContext(ctx)
 	if err != nil {
 		return fmt.Errorf("sessionstorage.Storage.Update: %w", err)

@@ -10,7 +10,7 @@ type MailService interface {
 	Send(to string, subject string, contentType string, content string) error
 }
 
-type RegistrationFormService interface {
+type RegistrationService interface {
 	Begin(ctx context.Context, ops model.BeginRegistrationOptions) (string, error)
 	End(ctx context.Context, ops model.EndRegistrationOptions) (uint, error)
 }
@@ -22,18 +22,18 @@ type SessionService interface {
 
 func New(
 	mailService MailService,
-	registrationFormService RegistrationFormService,
+	registrationService RegistrationService,
 	sessionService SessionService,
 ) *Controller {
 	return &Controller{
-		MailService:             mailService,
-		RegistrationFormService: registrationFormService,
-		SessionService:          sessionService,
+		MailService:         mailService,
+		RegistrationService: registrationService,
+		SessionService:      sessionService,
 	}
 }
 
 type Controller struct {
-	MailService             MailService
-	RegistrationFormService RegistrationFormService
-	SessionService          SessionService
+	MailService         MailService
+	RegistrationService RegistrationService
+	SessionService      SessionService
 }

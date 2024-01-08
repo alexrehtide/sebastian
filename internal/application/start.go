@@ -40,6 +40,9 @@ import (
 	totpservice "github.com/alexrehtide/sebastian/internal/totp-service"
 	"github.com/alexrehtide/sebastian/model"
 	"github.com/alexrehtide/sebastian/pkg/validator"
+
+	trmsqlx "github.com/avito-tech/go-transaction-manager/drivers/sqlx/v2"
+	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
@@ -65,17 +68,22 @@ func (a *Application) Start(ctx context.Context) error {
 	defer sqlDB.Close()
 	sqlxDB := sqlx.NewDb(sqlDB, "postgres")
 
+	trm, err := manager.New(trmsqlx.NewDefaultFactory(sqlxDB))
+	if err != nil {
+		return fmt.Errorf("application.Application.Start: %w", err)
+	}
+
 	validate := validator.New()
 
 	// storages
-	accountRoleStorage := accountrolestorage.New(sqlxDB)
-	accountStorage := accountstorage.New(sqlxDB)
-	loginAttemptStorage := loginattemptstorage.New(sqlxDB)
-	logStorage := logstorage.New(sqlxDB)
-	passwordResettingStorage := passwordresettingstorage.New(sqlxDB)
-	registrationFormStorage := registrationstorage.New(sqlxDB)
-	remoteAccountStorage := remoteaccountstorage.New(sqlxDB)
-	sessionStorage := sessionstorage.New(sqlxDB)
+	accountRoleStorage := accountrolestorage.New(sqlxDB, trmsqlx.DefaultCtxGetter)
+	accountStorage := accountstorage.New(sqlxDB, trmsqlx.DefaultCtxGetter)
+	loginAttemptStorage := loginattemptstorage.New(sqlxDB, trmsqlx.DefaultCtxGetter)
+	logStorage := logstorage.New(sqlxDB, trmsqlx.DefaultCtxGetter)
+	passwordResettingStorage := passwordresettingstorage.New(sqlxDB, trmsqlx.DefaultCtxGetter)
+	registrationFormStorage := registrationstorage.New(sqlxDB, trmsqlx.DefaultCtxGetter)
+	remoteAccountStorage := remoteaccountstorage.New(sqlxDB, trmsqlx.DefaultCtxGetter)
+	sessionStorage := sessionstorage.New(sqlxDB, trmsqlx.DefaultCtxGetter)
 
 	// services
 	accountService := accountservice.New(accountStorage, logger, validate)
@@ -89,7 +97,7 @@ func (a *Application) Start(ctx context.Context) error {
 
 	authService := authservice.New(accountService, sessionService, validate)
 	passwordResettingService := passwordresettingservice.New(accountService, passwordResettingStorage)
-	registrationFormService := registrationservice.New(accountService, rbacService, registrationFormStorage)
+	registrationFormService := registrationservice.New(accountService, rbacService, registrationFormStorage, trm)
 
 	garbageService := garbageservice.New(sessionService)
 
