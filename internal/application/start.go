@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"time"
 
 	accountcontroller "github.com/alexrehtide/sebastian/internal/account-controller"
 	accountprovider "github.com/alexrehtide/sebastian/internal/account-provider"
@@ -14,6 +15,7 @@ import (
 	authservice "github.com/alexrehtide/sebastian/internal/auth-service"
 	eventmiddleware "github.com/alexrehtide/sebastian/internal/event-middleware"
 	eventservice "github.com/alexrehtide/sebastian/internal/event-service"
+	garbageservice "github.com/alexrehtide/sebastian/internal/garbage-service"
 	logstorage "github.com/alexrehtide/sebastian/internal/log-storage"
 	loginattemptservice "github.com/alexrehtide/sebastian/internal/login-attempt-service"
 	loginattemptstorage "github.com/alexrehtide/sebastian/internal/login-attempt-storage"
@@ -87,7 +89,7 @@ func (a *Application) Start(ctx context.Context) error {
 
 	eventService := eventservice.New(logger)
 	accountService := accountservice.New(accountStorage, logger, validate)
-	sessionService := sessionservice.New(logger, sessionStorage, validate)
+	sessionService := sessionservice.New(a.ConfigService, logger, sessionStorage, validate)
 	authService := authservice.New(accountService, sessionService, validate)
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
 	mailService := mailservice.New(a.ConfigService)
@@ -96,6 +98,7 @@ func (a *Application) Start(ctx context.Context) error {
 	registrationFormService := registrationservice.New(accountService, rbacService, registrationFormStorage)
 	remoteAccountService := remoteaccountservice.New(remoteAccountStorage, "random state") // TODO: change state
 	totpService := totpservice.New()
+	garbageService := garbageservice.New(sessionService)
 
 	accountProvider := accountprovider.New()
 	sessionProvider := sessionprovider.New()
@@ -174,6 +177,18 @@ func (a *Application) Start(ctx context.Context) error {
 	g, gCtx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		return app.Listen(a.ConfigService.HTTPServerAddr())
+	})
+	g.Go(func() error {
+		for {
+			select {
+			case <-time.After(5 * time.Minute):
+				if err := garbageService.Clean(gCtx); err != nil {
+					return err
+				}
+			case <-gCtx.Done():
+				return nil
+			}
+		}
 	})
 	g.Go(func() error {
 		<-gCtx.Done()

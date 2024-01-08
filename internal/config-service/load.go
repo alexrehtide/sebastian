@@ -2,6 +2,7 @@ package configservice
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -34,6 +35,15 @@ func (s *Service) Load() (err error) {
 	}
 	s.smtpEmail = getEnv("SMTP_EMAIL", "admin@taris.fun")
 	s.smtpPassword = getEnv("SMTP_PASSWORD", "32213345Qq")
+
+	s.sessionAccessTokenExpiring, err = getDurationSecondsEnv("SESSION_ACCESS_TOKEN_EXPIRING", time.Minute*15)
+	if err != nil {
+		return fmt.Errorf("configservice.Service.Load: %w", err)
+	}
+	s.sessionRefreshTokenExpiring, err = getDurationSecondsEnv("SESSION_REFRESH_TOKEN_EXPIRING", time.Hour*24)
+	if err != nil {
+		return fmt.Errorf("configservice.Service.Load: %w", err)
+	}
 
 	return nil
 }

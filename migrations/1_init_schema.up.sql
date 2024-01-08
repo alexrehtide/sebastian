@@ -29,9 +29,10 @@ CREATE TABLE session (
   created_at TIMESTAMP WITH TIME ZONE,
   updated_at TIMESTAMP WITH TIME ZONE,
   PRIMARY KEY(id),
-  CONSTRAINT fk_session_account_id
+  CONSTRAINT fk_session_account_id 
     FOREIGN KEY(account_id) 
-	    REFERENCES account(id)
+      REFERENCES account(id) 
+        ON DELETE NO ACTION
 );
 
 CREATE TABLE log (

@@ -1,5 +1,7 @@
 package configservice
 
+import "time"
+
 func New() *Service {
 	return &Service{}
 }
@@ -18,4 +20,7 @@ type Service struct {
 	smtpPort     int
 	smtpEmail    string
 	smtpPassword string
+
+	sessionAccessTokenExpiring  time.Duration
+	sessionRefreshTokenExpiring time.Duration
 }

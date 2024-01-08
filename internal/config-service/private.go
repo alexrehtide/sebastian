@@ -5,7 +5,22 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
+
+func getDurationSecondsEnv(key string, defaultVal time.Duration) (time.Duration, error) {
+	value := getEnv(key, "")
+	if value == "" {
+		return defaultVal, nil
+	}
+
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, err
+	}
+
+	return time.Duration(int64(intValue)), nil
+}
 
 func getBoolEnv(key string, defaultVal bool) (bool, error) {
 	value := getEnv(key, "false")

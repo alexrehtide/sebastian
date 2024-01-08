@@ -1,6 +1,8 @@
 package application
 
 import (
+	"time"
+
 	configservice "github.com/alexrehtide/sebastian/internal/config-service"
 )
 
@@ -17,6 +19,8 @@ type ConfigService interface {
 	SMTPPort() int
 	SMTPEmail() string
 	SMTPPassword() string
+	SessionAccessTokenExpiring() time.Duration
+	SessionRefreshTokenExpiring() time.Duration
 }
 
 func New(configService *configservice.Service) *Application {
