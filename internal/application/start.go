@@ -39,7 +39,6 @@ import (
 	totpcontroller "github.com/alexrehtide/sebastian/internal/totp-controller"
 	totpservice "github.com/alexrehtide/sebastian/internal/totp-service"
 	"github.com/alexrehtide/sebastian/model"
-	"github.com/alexrehtide/sebastian/pkg/postgres"
 	"github.com/alexrehtide/sebastian/pkg/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
@@ -50,7 +49,7 @@ import (
 func (a *Application) Start(ctx context.Context) error {
 	err := a.ConfigService.Load()
 	if err != nil {
-		return fmt.Errorf("httpserver.Server.Listen: %w", err)
+		return fmt.Errorf("application.Application.Start: %w", err)
 	}
 
 	logger := logrus.New()
@@ -59,23 +58,16 @@ func (a *Application) Start(ctx context.Context) error {
 		logger.SetLevel(logrus.DebugLevel)
 	}
 
+	sqlDB, err := a.dbConnection()
 	if err != nil {
-		return fmt.Errorf("httpserver.Server.Listen: %w", err)
-	}
-
-	sqlDB, err := postgres.New(postgres.PostgresOptions{
-		User:     a.ConfigService.PostgresUser(),
-		Password: a.ConfigService.PostgresPassword(),
-		Host:     a.ConfigService.PostgresHost(),
-		Port:     a.ConfigService.PostgresPort(),
-		DBName:   a.ConfigService.PostgresDBName(),
-	})
-	if err != nil {
-		return fmt.Errorf("httpserver.Server.Listen: %w", err)
+		return fmt.Errorf("application.Application.Start: %w", err)
 	}
 	defer sqlDB.Close()
-
 	sqlxDB := sqlx.NewDb(sqlDB, "postgres")
+
+	validate := validator.New()
+
+	// storages
 	accountRoleStorage := accountrolestorage.New(sqlxDB)
 	accountStorage := accountstorage.New(sqlxDB)
 	loginAttemptStorage := loginattemptstorage.New(sqlxDB)
@@ -85,27 +77,32 @@ func (a *Application) Start(ctx context.Context) error {
 	remoteAccountStorage := remoteaccountstorage.New(sqlxDB)
 	sessionStorage := sessionstorage.New(sqlxDB)
 
-	validate := validator.New()
-
-	eventService := eventservice.New(logger)
+	// services
 	accountService := accountservice.New(accountStorage, logger, validate)
-	sessionService := sessionservice.New(a.ConfigService, logger, sessionStorage, validate)
-	authService := authservice.New(accountService, sessionService, validate)
+	eventService := eventservice.New(logger)
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
 	mailService := mailservice.New(a.ConfigService)
-	passwordResettingService := passwordresettingservice.New(accountService, passwordResettingStorage)
 	rbacService := rbacservice.New(accountRoleStorage, validate)
-	registrationFormService := registrationservice.New(accountService, rbacService, registrationFormStorage)
 	remoteAccountService := remoteaccountservice.New(remoteAccountStorage, "random state") // TODO: change state
+	sessionService := sessionservice.New(a.ConfigService, logger, sessionStorage, validate)
 	totpService := totpservice.New()
+
+	authService := authservice.New(accountService, sessionService, validate)
+	passwordResettingService := passwordresettingservice.New(accountService, passwordResettingStorage)
+	registrationFormService := registrationservice.New(accountService, rbacService, registrationFormStorage)
+
 	garbageService := garbageservice.New(sessionService)
 
+	// providers
 	accountProvider := accountprovider.New()
 	sessionProvider := sessionprovider.New()
 
+	// middleware
 	authMiddleware := authmiddleware.New(accountProvider, accountService, sessionProvider, sessionService)
 	eventMiddleware := eventmiddleware.New(eventService)
 	rbacMiddleware := rbacmiddleware.New(accountProvider, rbacService)
+
+	// controllers
 	accountController := accountcontroller.New(accountService)
 	authController := authcontroller.New(accountProvider, authService, loginAttemptService, rbacService)
 	passwordResettingController := passwordresettingcontroller.New(mailService, passwordResettingService)
