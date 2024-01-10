@@ -5,8 +5,8 @@ name: sebastian-prod
 services:
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
+      context: .
+      dockerfile: Dockerfile.front.prod
     ports:
       - "80:80"
       - "443:443"
