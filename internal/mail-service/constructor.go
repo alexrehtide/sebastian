@@ -38,7 +38,8 @@ func New(configService ConfigService) (*Service, error) {
 		caCertPool.AppendCertsFromPEM(caCert)
 
 		d.TLSConfig = &tls.Config{
-			RootCAs: caCertPool,
+			ServerName: "taris.fun",
+			RootCAs:    caCertPool,
 		}
 	}
 	return &Service{
