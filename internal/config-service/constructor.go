@@ -23,4 +23,12 @@ type Service struct {
 
 	sessionAccessTokenExpiring  time.Duration
 	sessionRefreshTokenExpiring time.Duration
+
+	remoteAccountBaseURL            string
+	remoteAccountGoogleClientID     string
+	remoteAccountGoogleClientSecret string
+	remoteAccountYandexClientID     string
+	remoteAccountYandexClientSecret string
+	remoteAccountTwitchClientID     string
+	remoteAccountTwitchClientSecret string
 }

@@ -19,7 +19,7 @@ func (s *Service) Authorize(ctx context.Context, platform model.Platform, token 
 	case model.Google:
 		remoteAcc, err = AuthorizeGoogle(token)
 	case model.Twitch:
-		remoteAcc, err = AuthorizeTwitch(twitchOauth2Config, token)
+		remoteAcc, err = AuthorizeTwitch(s.configs[model.Twitch], token)
 	case model.Yandex:
 		remoteAcc, err = AuthorizeYandex(token)
 	default:

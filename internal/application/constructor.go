@@ -21,6 +21,13 @@ type ConfigService interface {
 	SMTPPassword() string
 	SessionAccessTokenExpiring() time.Duration
 	SessionRefreshTokenExpiring() time.Duration
+	RemoteAccountBaseURL() string
+	RemoteAccountGoogleClientID() string
+	RemoteAccountGoogleClientSecret() string
+	RemoteAccountYandexClientID() string
+	RemoteAccountYandexClientSecret() string
+	RemoteAccountTwitchClientID() string
+	RemoteAccountTwitchClientSecret() string
 }
 
 func New(configService *configservice.Service) *Application {

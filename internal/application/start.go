@@ -91,7 +91,7 @@ func (a *Application) Start(ctx context.Context) error {
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
 	mailService := mailservice.New(a.ConfigService)
 	rbacService := rbacservice.New(accountRoleStorage, validate)
-	remoteAccountService := remoteaccountservice.New(remoteAccountStorage, "random state") // TODO: change state
+	remoteAccountService := remoteaccountservice.New(a.ConfigService, remoteAccountStorage, "random state") // TODO: change state
 	sessionService := sessionservice.New(a.ConfigService, logger, sessionStorage, validate)
 	totpService := totpservice.New()
 
