@@ -19,5 +19,5 @@ func (s *Service) Begin(ctx context.Context, ops model.BeginRegistrationOptions)
 	if err != nil {
 		return "", fmt.Errorf("registrationservice.Service.Begin: %w", err)
 	}
-	return fmt.Sprintf("http://localhost:9000/auth/sign_up?verification_code=%s", code), nil // implement URL generator
+	return fmt.Sprintf("%s/auth/sign_up?verification_code=%s", s.ConfigService.FrontendBaseURL(), code), nil // implement URL generator
 }

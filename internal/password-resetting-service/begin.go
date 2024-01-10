@@ -22,5 +22,5 @@ func (s *Service) Begin(ctx context.Context, ops model.BeginPasswordResettingOpt
 	if err != nil {
 		return "", fmt.Errorf("passwordresettingservice.Service.Begin: %w", err)
 	}
-	return fmt.Sprintf("http://localhost:9000/auth/forgot_password?resetting_code=%s", code), nil // implement URL generator
+	return fmt.Sprintf("%s/auth/forgot_password?resetting_code=%s", s.ConfigService.FrontendBaseURL(), code), nil // implement URL generator
 }

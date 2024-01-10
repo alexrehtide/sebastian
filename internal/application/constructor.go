@@ -9,6 +9,7 @@ import (
 type ConfigService interface {
 	Load() error
 	Debug() bool
+	FrontendBaseURL() string
 	HTTPServerAddr() string
 	PostgresDBName() string
 	PostgresUser() string

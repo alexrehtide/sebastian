@@ -31,4 +31,6 @@ type Service struct {
 	remoteAccountYandexClientSecret string
 	remoteAccountTwitchClientID     string
 	remoteAccountTwitchClientSecret string
+
+	frontendBaseURL string
 }

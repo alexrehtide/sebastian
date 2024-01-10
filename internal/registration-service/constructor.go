@@ -10,6 +10,10 @@ type AccountService interface {
 	Create(ctx context.Context, ops model.CreateAccountOptions) (uint, error)
 }
 
+type ConfigService interface {
+	FrontendBaseURL() string
+}
+
 type RBACService interface {
 	AddAccountRole(ctx context.Context, accountID uint, role model.Role) error
 }
@@ -27,12 +31,14 @@ type TransactionManager interface {
 
 func New(
 	accountService AccountService,
+	configService ConfigService,
 	rbacService RBACService,
 	registrationsFormStorage RegistrationFormStorage,
 	trm TransactionManager,
 ) *Service {
 	return &Service{
 		AccountService:          accountService,
+		ConfigService:           configService,
 		RBACService:             rbacService,
 		RegistrationFormStorage: registrationsFormStorage,
 
@@ -42,6 +48,7 @@ func New(
 
 type Service struct {
 	AccountService          AccountService
+	ConfigService           ConfigService
 	RBACService             RBACService
 	RegistrationFormStorage RegistrationFormStorage
 	trm                     TransactionManager

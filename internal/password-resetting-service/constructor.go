@@ -11,6 +11,10 @@ type AccountService interface {
 	UpdatePassword(ctx context.Context, accountID uint, password string) error
 }
 
+type ConfigService interface {
+	FrontendBaseURL() string
+}
+
 type PasswordResettingStorage interface {
 	Count(ctx context.Context, ops model.ReadPasswordResettingOptions) (count int, err error)
 	Create(ctx context.Context, ops model.CreatePasswordResettingOptions) (id uint, err error)
@@ -18,14 +22,16 @@ type PasswordResettingStorage interface {
 	Read(ctx context.Context, ops model.ReadPasswordResettingOptions, pgOps model.PaginationOptions) (rows []model.PasswordResetting, err error)
 }
 
-func New(accountService AccountService, passwordResettingStorage PasswordResettingStorage) *Service {
+func New(accountService AccountService, configService ConfigService, passwordResettingStorage PasswordResettingStorage) *Service {
 	return &Service{
 		AccountService:           accountService,
+		ConfigService:            configService,
 		PasswordResettingStorage: passwordResettingStorage,
 	}
 }
 
 type Service struct {
 	AccountService           AccountService
+	ConfigService            ConfigService
 	PasswordResettingStorage PasswordResettingStorage
 }

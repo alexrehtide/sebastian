@@ -96,8 +96,8 @@ func (a *Application) Start(ctx context.Context) error {
 	totpService := totpservice.New()
 
 	authService := authservice.New(accountService, sessionService, validate)
-	passwordResettingService := passwordresettingservice.New(accountService, passwordResettingStorage)
-	registrationFormService := registrationservice.New(accountService, rbacService, registrationFormStorage, trm)
+	passwordResettingService := passwordresettingservice.New(accountService, a.ConfigService, passwordResettingStorage)
+	registrationFormService := registrationservice.New(accountService, a.ConfigService, rbacService, registrationFormStorage, trm)
 
 	garbageService := garbageservice.New(sessionService)
 

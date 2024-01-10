@@ -52,5 +52,7 @@ func (s *Service) Load() (err error) {
 	s.remoteAccountYandexClientSecret = getEnv("REMOTE_ACCOUNT_YANDEX_CLIENT_SECRET", "f15f546861b84d1abd9ed0eae3ea14dd")
 	s.remoteAccountTwitchClientID = getEnv("REMOTE_ACCOUNT_TWITCH_CLIENT_ID", "imjoly4a42a44gjafzpe7nspql0wq9")
 	s.remoteAccountTwitchClientSecret = getEnv("REMOTE_ACCOUNT_TWITCH_CLIENT_SECRET", "hgcwsg6o34emjpfufpvvs9hyt1xlpy")
+
+	s.frontendBaseURL = getEnv("FRONTEND_BASE_URL", "http://localhost:9000")
 	return nil
 }
