@@ -11,6 +11,6 @@ RUN go mod download && \
 FROM ubuntu
 COPY --from=builder ["/app/main", "/main"]
 COPY --from=builder ["/app/.env", "/.env"]
-# COPY .ssl/certificate_ca.crt /etc/ssl/certs/certificate_ca.crt
+COPY .ssl/certificate_ca.crt /etc/ssl/certs/certificate_ca.crt
 EXPOSE 3000
 CMD [ "/main" ]
