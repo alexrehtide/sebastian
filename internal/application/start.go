@@ -89,10 +89,7 @@ func (a *Application) Start(ctx context.Context) error {
 	accountService := accountservice.New(accountStorage, logger, validate)
 	eventService := eventservice.New(logger)
 	loginAttemptService := loginattemptservice.New(loginAttemptStorage)
-	mailService, err := mailservice.New(a.ConfigService)
-	if err != nil {
-		return fmt.Errorf("application.Application.Start: %w", err)
-	}
+	mailService := mailservice.New(a.ConfigService)
 	rbacService := rbacservice.New(accountRoleStorage, validate)
 	remoteAccountService := remoteaccountservice.New(a.ConfigService, remoteAccountStorage, "random state") // TODO: change state
 	sessionService := sessionservice.New(a.ConfigService, logger, sessionStorage, validate)

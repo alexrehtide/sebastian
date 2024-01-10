@@ -2,9 +2,6 @@ package mailservice
 
 import (
 	"crypto/tls"
-	"crypto/x509"
-	"fmt"
-	"os"
 
 	gomail "gopkg.in/mail.v2"
 )
@@ -17,7 +14,7 @@ type ConfigService interface {
 	SMTPPassword() string
 }
 
-func New(configService ConfigService) (*Service, error) {
+func New(configService ConfigService) *Service {
 	d := gomail.NewDialer(
 		configService.SMTPHost(),
 		configService.SMTPPort(),
@@ -29,23 +26,14 @@ func New(configService ConfigService) (*Service, error) {
 			InsecureSkipVerify: true,
 		}
 	} else {
-		caCert, err := os.ReadFile("/etc/ssl/certs/certificate_ca.crt")
-		if err != nil {
-			return nil, fmt.Errorf("mailservice.New: %w", err)
-		}
-
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-
 		d.TLSConfig = &tls.Config{
 			ServerName: "taris.fun",
-			RootCAs:    caCertPool,
 		}
 	}
 	return &Service{
 		ConfigService: configService,
 		Dialer:        d,
-	}, nil
+	}
 }
 
 type Service struct {
