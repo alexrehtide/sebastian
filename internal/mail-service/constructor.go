@@ -29,7 +29,7 @@ func New(configService ConfigService) (*Service, error) {
 			InsecureSkipVerify: true,
 		}
 	} else {
-		caCert, err := os.ReadFile("./.ssl/certificate_ca.crt")
+		caCert, err := os.ReadFile("/etc/ssl/certs/certificate_ca.crt")
 		if err != nil {
 			return nil, fmt.Errorf("mailservice.New: %w", err)
 		}
