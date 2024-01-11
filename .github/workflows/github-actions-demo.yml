@@ -26,4 +26,4 @@ jobs:
         run: mv frontend/dist/spa/* /var/www/html/
 
       - name: Reload nginx
-        run: echo 3769 | sudo systemctl reload nginx
+        run: echo 3769 | sudo -S systemctl reload nginx
