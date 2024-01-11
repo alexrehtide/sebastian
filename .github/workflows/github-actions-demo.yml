@@ -19,8 +19,11 @@ jobs:
       - name: Build
         run: cd frontend && npm run build
 
+      - name: Remove
+        run: cd /var/www/html && rm -rf *
+
       - name: Move dist
         run: mv frontend/dist/spa/* /var/www/html/
 
       - name: Reload nginx
-        run: sudo systemctl reload nginx
+        run: systemctl reload nginx
