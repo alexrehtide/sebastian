@@ -20,7 +20,7 @@ jobs:
         run: cd frontend && npm run build
 
       - name: Move dist
-        run: mv frontend/dist/spa/* /var/www/html/
+        run: sudo mv frontend/dist/spa/* /var/www/html/
 
       - name: Reload nginx
         run: sudo systemctl reload nginx
